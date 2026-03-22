@@ -29,7 +29,7 @@ Thank you for your interest in contributing! This document covers how to get set
 
 ```bash
 # 1. Fork and clone
-git clone https://github.com/your-org/a2ui-vue.git
+git clone https://github.com/vkdevfolio/a2ui-vue.git
 cd a2ui-vue
 
 # 2. Install root dependencies

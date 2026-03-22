@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/a2ui-vue"><img src="https://img.shields.io/npm/v/a2ui-vue?color=7c3aed&label=a2ui-vue" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@vkdevfolio/a2ui-vue"><img src="https://img.shields.io/npm/v/@vkdevfolio/a2ui-vue?color=7c3aed&label=@vkdevfolio/a2ui-vue" alt="npm version" /></a>
   <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3.4%2B-42b883?logo=vue.js" alt="Vue 3" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
   <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome" /></a>
@@ -86,9 +86,9 @@
 ### 1. Install
 
 ```bash
-npm install a2ui-vue
+npm install @vkdevfolio/a2ui-vue
 # or
-pnpm add a2ui-vue
+pnpm add @vkdevfolio/a2ui-vue
 ```
 
 ### 2. Register the plugin
@@ -96,8 +96,8 @@ pnpm add a2ui-vue
 ```ts
 // main.ts
 import { createApp } from 'vue'
-import { A2UIPlugin } from 'a2ui-vue'
-import 'a2ui-vue/style.css'
+import { A2UIPlugin } from '@vkdevfolio/a2ui-vue'
+import '@vkdevfolio/a2ui-vue/style.css'
 import App from './App.vue'
 
 createApp(App)
@@ -113,7 +113,7 @@ createApp(App)
 </template>
 
 <script setup>
-import { A2StaticRenderer } from 'a2ui-vue'
+import { A2StaticRenderer } from '@vkdevfolio/a2ui-vue'
 
 const widgetJson = [
   {
@@ -150,7 +150,7 @@ const widgetJson = [
 </template>
 
 <script setup>
-import { A2Surface } from 'a2ui-vue'
+import { A2Surface } from '@vkdevfolio/a2ui-vue'
 </script>
 ```
 

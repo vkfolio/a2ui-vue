@@ -1,6 +1,6 @@
 {
-  "name": "a2ui-vue",
-  "version": "0.1.0",
+  "name": "@vkdevfolio/a2ui-vue",
+  "version": "0.1.1",
   "description": "Vue 3 renderer for Google A2UI protocol — render agent-generated UI components with Tailwind CSS",
   "type": "module",
   "main": "./dist/a2ui-vue.umd.cjs",
@@ -48,6 +48,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/a2ui-vue"
+    "url": "https://github.com/vkfolio/a2ui-vue"
   }
 }
