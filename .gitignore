@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.nuxt/
+.output/
+.env
+*.pyc
+__pycache__/
+.venv/
+*.egg-info/
+.DS_Store
+package-lock.json

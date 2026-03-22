@@ -1,0 +1,53 @@
+{
+  "name": "a2ui-vue",
+  "version": "0.1.0",
+  "description": "Vue 3 renderer for Google A2UI protocol — render agent-generated UI components with Tailwind CSS",
+  "type": "module",
+  "main": "./dist/a2ui-vue.umd.cjs",
+  "module": "./dist/a2ui-vue.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/a2ui-vue.js",
+      "require": "./dist/a2ui-vue.umd.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0",
+    "tailwindcss": "^3.4.0 || ^4.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vite-plugin-dts": "^4.5.0",
+    "vue": "^3.5.0",
+    "vue-tsc": "^2.2.0"
+  },
+  "keywords": [
+    "a2ui",
+    "vue",
+    "vue3",
+    "agent-ui",
+    "generative-ui",
+    "ag-ui",
+    "tailwindcss",
+    "ai-agent",
+    "google-a2ui"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/a2ui-vue"
+  }
+}
