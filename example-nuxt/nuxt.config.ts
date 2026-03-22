@@ -2,6 +2,7 @@ import { resolve } from 'path'
 
 export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss'],
+  devtools: false,
   ssr: false,
   alias: {
     'a2ui-vue': resolve(__dirname, '../src/index.ts'),

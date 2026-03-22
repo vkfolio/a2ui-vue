@@ -1,6 +1,8 @@
 import json
 from langchain_core.tools import tool
 from llm_factory import create_llm
+from langchain.agents import create_agent
+from langchain.messages import HumanMessage
 
 A2UI_COMPONENT_CATALOG = """
 # A2UI Component Catalog (v0.8)
@@ -131,12 +133,11 @@ def design_widget(description: str) -> str:
         "realistic sample data."
     )
 
-    response = llm.invoke([
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": description},
-    ])
+    agent = create_agent(model=llm, system_prompt=system_prompt)
 
-    result_text = response.content.strip()
+    response = agent.invoke({"messages": HumanMessage(content=description)})
+
+    result_text = response["messages"][-1].content
 
     # Strip markdown fences if present
     if result_text.startswith("```"):
