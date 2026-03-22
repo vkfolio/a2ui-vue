@@ -62,6 +62,13 @@ const componentMap: Record<string, ReturnType<typeof defineAsyncComponent>> = {
   DateTimeInput: defineAsyncComponent(() => import('./input/A2DateTimeInput.vue')),
   // Navigation
   Button: defineAsyncComponent(() => import('./navigation/A2Button.vue')),
+  // Extended content
+  Badge: defineAsyncComponent(() => import('./content/A2Badge.vue')),
+  Progress: defineAsyncComponent(() => import('./content/A2Progress.vue')),
+  Rating: defineAsyncComponent(() => import('./content/A2Rating.vue')),
+  Avatar: defineAsyncComponent(() => import('./content/A2Avatar.vue')),
+  Alert: defineAsyncComponent(() => import('./content/A2Alert.vue')),
+  Stat: defineAsyncComponent(() => import('./content/A2Stat.vue')),
 }
 
 const resolvedComponent = computed(() => {

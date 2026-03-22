@@ -51,11 +51,26 @@ export function parseA2UIMessages(
   let parsed: unknown = content
 
   if (typeof content === 'string') {
-    try {
-      parsed = JSON.parse(content)
-    } catch {
-      return []
+    // 1. Try to extract JSON from markdown code fence first
+    const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
+    const candidates = fenceMatch
+      ? [fenceMatch[1].trim(), content.trim()]
+      : [content.trim()]
+
+    for (const candidate of candidates) {
+      // Strip single-line (//) and block (/* */) JS comments from JSON
+      const stripped = candidate
+        .replace(/\/\/[^\n]*/g, '')        // // line comments
+        .replace(/\/\*[\s\S]*?\*\//g, '')  // /* block comments */
+        .trim()
+      try {
+        parsed = JSON.parse(stripped)
+        break
+      } catch {
+        // try next candidate
+      }
     }
+    if (parsed === content) return [] // nothing parsed
   }
 
   if (Array.isArray(parsed)) {

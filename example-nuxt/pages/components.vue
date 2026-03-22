@@ -220,23 +220,32 @@ const componentDefs = {
   },
   Image: {
     name: 'Image',
-    description: 'Displays an image from a URL. Supports multiple fit modes and usage hints for sizing context.',
+    description: 'Displays an image with aspect-ratio sizing variants, shimmer skeleton while loading, and graceful error state.',
     preview: [
       { surfaceUpdate: { surfaceId: 'prev-img', components: [
-        { id: 'root', component: { Card: { child: 'img' } } },
-        { id: 'img', component: { Image: { url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop', fit: 'cover' } } },
+        { id: 'root', component: { Card: { child: 'col' } } },
+        { id: 'col', component: { Column: { children: { explicitList: ['lbl-row', 'img-med', 'lbl-sm', 'sm-row'] } } } },
+        { id: 'lbl-row', component: { Text: { text: { literalString: 'mediumFeature (16:9)' }, usageHint: 'caption' } } },
+        { id: 'img-med', component: { Image: { url: { literalString: 'https://picsum.photos/seed/mountains/600/338' }, fit: 'cover', usageHint: 'mediumFeature' } } },
+        { id: 'lbl-sm', component: { Text: { text: { literalString: 'smallFeature thumbnails' }, usageHint: 'caption' } } },
+        { id: 'sm-row', component: { Row: { children: { explicitList: ['img-s1','img-s2','img-s3'] } } } },
+        { id: 'img-s1', component: { Image: { url: { literalString: 'https://picsum.photos/seed/city1/120/120' }, fit: 'cover', usageHint: 'smallFeature' } } },
+        { id: 'img-s2', component: { Image: { url: { literalString: 'https://picsum.photos/seed/city2/120/120' }, fit: 'cover', usageHint: 'smallFeature' } } },
+        { id: 'img-s3', component: { Image: { url: { literalString: 'https://picsum.photos/seed/city3/120/120' }, fit: 'cover', usageHint: 'smallFeature' } } },
       ] } },
       { beginRendering: { surfaceId: 'prev-img', root: 'root' } },
     ],
-    usage: `{ "id": "my-image", "component": { "Image": {
+    usage: `{ "id": "hero", "component": { "Image": {
   "url": { "path": "/imageUrl" },
   "fit": "cover",
   "usageHint": "mediumFeature"
 }}}`,
     props: [
-      { name: 'url', description: 'DynamicString: image URL or data binding', default: 'required' },
-      { name: 'fit', description: 'Object fit: contain, cover, fill, none, scaleDown', default: '"contain"' },
-      { name: 'usageHint', description: 'Size hint: icon, avatar, smallFeature, mediumFeature, largeFeature, header', default: '-' },
+      { name: 'url / src', description: 'DynamicString — image URL or data binding', default: 'required' },
+      { name: 'fit', description: 'Object-fit mode: cover · contain · fill · none · scaleDown', default: '"cover"' },
+      { name: 'usageHint / variant', description: 'icon · avatar · smallFeature · mediumFeature · largeFeature · header · cover · banner', default: '"mediumFeature"' },
+      { name: 'alt', description: 'DynamicString — accessibility label', default: '-' },
+      { name: 'borderRadius', description: 'CSS border-radius override (e.g. "50%" or "8px")', default: 'auto' },
     ],
   },
   Icon: {
@@ -263,38 +272,55 @@ const componentDefs = {
   },
   Video: {
     name: 'Video',
-    description: 'Embeds a video player with the given URL.',
+    description: 'Full custom video player — 16:9 aspect ratio, gradient seek bar with buffered progress, auto-hiding controls, volume slider, fullscreen, and loading spinner.',
     preview: [
       { surfaceUpdate: { surfaceId: 'prev-vid', components: [
-        { id: 'root', component: { Card: { child: 'txt' } } },
-        { id: 'txt', component: { Text: { text: 'Video component renders a <video> element from a URL.', usageHint: 'body' } } },
+        { id: 'root', component: { Card: { child: 'vid' } } },
+        { id: 'vid', component: { Video: {
+          url: { literalString: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4' },
+          poster: { literalString: 'https://picsum.photos/seed/video-poster/600/338' },
+          title: { literalString: 'Big Buck Bunny — Sample Video' },
+        } } },
       ] } },
       { beginRendering: { surfaceId: 'prev-vid', root: 'root' } },
     ],
-    usage: `{ "id": "my-video", "component": { "Video": {
-  "url": { "path": "/videoUrl" }
+    usage: `{ "id": "hero-video", "component": { "Video": {
+  "url": { "path": "/videoUrl" },
+  "poster": { "path": "/posterUrl" },
+  "title": { "literalString": "My Video" }
 }}}`,
     props: [
-      { name: 'url', description: 'DynamicString: video source URL', default: 'required' },
+      { name: 'url / src', description: 'DynamicString — video source URL', default: 'required' },
+      { name: 'poster / thumbnail', description: 'DynamicString — poster image shown before play', default: '-' },
+      { name: 'title / description', description: 'DynamicString — label shown above the player', default: '-' },
     ],
   },
   AudioPlayer: {
     name: 'AudioPlayer',
-    description: 'Renders an audio player with playback controls and an optional description.',
+    description: 'Custom audio player with spinning cover art disc, track title + artist, ±10s skip, gradient seek bar, volume popup, and loading spinner.',
     preview: [
       { surfaceUpdate: { surfaceId: 'prev-audio', components: [
-        { id: 'root', component: { Card: { child: 'txt' } } },
-        { id: 'txt', component: { Text: { text: 'AudioPlayer renders an <audio> element with controls.', usageHint: 'body' } } },
+        { id: 'root', component: { Card: { child: 'audio' } } },
+        { id: 'audio', component: { AudioPlayer: {
+          url: { literalString: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+          title: { literalString: 'Midnight Wandering' },
+          artist: { literalString: 'Luna & The Echoes' },
+          cover: { literalString: 'https://picsum.photos/seed/midnight-album/120/120' },
+        } } },
       ] } },
       { beginRendering: { surfaceId: 'prev-audio', root: 'root' } },
     ],
-    usage: `{ "id": "my-audio", "component": { "AudioPlayer": {
+    usage: `{ "id": "player", "component": { "AudioPlayer": {
   "url": { "path": "/audioUrl" },
-  "description": "Episode 1 - Introduction"
+  "title": { "path": "/trackName" },
+  "artist": { "path": "/artistName" },
+  "cover": { "path": "/coverUrl" }
 }}}`,
     props: [
-      { name: 'url', description: 'DynamicString: audio source URL', default: 'required' },
-      { name: 'description', description: 'DynamicString: optional description text', default: '-' },
+      { name: 'url / src', description: 'DynamicString — audio source URL', default: 'required' },
+      { name: 'title / description / label', description: 'DynamicString — track name', default: '-' },
+      { name: 'artist / subtitle', description: 'DynamicString — artist or subtitle', default: '-' },
+      { name: 'cover / image / thumbnail', description: 'DynamicString — album art URL', default: '-' },
     ],
   },
   TextField: {
@@ -503,6 +529,175 @@ const componentDefs = {
       { name: 'axis', description: 'Orientation: horizontal or vertical', default: '"horizontal"' },
     ],
   },
+
+  // ── New extended components ───────────────────────────────────────────
+  Badge: {
+    name: 'Badge',
+    description: 'A compact pill-shaped label for status, categories, or counts. Supports success, warning, error, info, neutral, and primary variants.',
+    preview: [
+      { createSurface: { surfaceId: 'prev-badge', rootComponentId: 'root' } },
+      { updateComponents: { surfaceId: 'prev-badge', components: [
+        { id: 'root', component: 'Card', child: 'col' },
+        { id: 'col', component: 'Column', children: ['row1', 'row2'] },
+        { id: 'row1', component: 'Row', children: ['b1', 'b2', 'b3'], justify: 'start', align: 'center' },
+        { id: 'b1', component: 'Badge', label: { literalString: 'Success' }, variant: 'success' },
+        { id: 'b2', component: 'Badge', label: { literalString: 'Warning' }, variant: 'warning' },
+        { id: 'b3', component: 'Badge', label: { literalString: 'Error' }, variant: 'error' },
+        { id: 'row2', component: 'Row', children: ['b4', 'b5', 'b6'], justify: 'start', align: 'center' },
+        { id: 'b4', component: 'Badge', label: { literalString: 'Info' }, variant: 'info' },
+        { id: 'b5', component: 'Badge', label: { literalString: 'Neutral' }, variant: 'neutral' },
+        { id: 'b6', component: 'Badge', label: { literalString: 'Primary' }, variant: 'primary' },
+      ] } },
+    ],
+    usage: `{ "id": "my-badge", "component": "Badge",
+  "label": { "literalString": "Active" },
+  "variant": "success"
+}`,
+    props: [
+      { name: 'label', description: 'DynamicString: badge text', default: 'required' },
+      { name: 'variant', description: 'Color variant: success, warning, error, info, neutral, primary', default: '"neutral"' },
+    ],
+  },
+
+  Progress: {
+    name: 'Progress',
+    description: 'Animated progress bar. Supports linear (default) and circular variants. Value is 0–100.',
+    preview: [
+      { createSurface: { surfaceId: 'prev-prog', rootComponentId: 'root' } },
+      { updateComponents: { surfaceId: 'prev-prog', components: [
+        { id: 'root', component: 'Card', child: 'col' },
+        { id: 'col', component: 'Column', children: ['p1', 'p2', 'row'] },
+        { id: 'p1', component: 'Progress', value: { literalString: '72' }, label: { literalString: 'Project Completion' }, variant: 'linear' },
+        { id: 'p2', component: 'Progress', value: { literalString: '45' }, label: { literalString: 'Storage Used' }, variant: 'linear' },
+        { id: 'row', component: 'Row', children: ['circ'], justify: 'center' },
+        { id: 'circ', component: 'Progress', value: { literalString: '84' }, label: { literalString: 'Uptime' }, variant: 'circular' },
+      ] } },
+    ],
+    usage: `{ "id": "my-progress", "component": "Progress",
+  "value": { "path": "/percent" },
+  "label": { "literalString": "Loading..." },
+  "variant": "linear"
+}`,
+    props: [
+      { name: 'value', description: 'DynamicNumber: 0–100', default: 'required' },
+      { name: 'label', description: 'DynamicString: optional label text', default: '-' },
+      { name: 'variant', description: 'Display style: linear or circular', default: '"linear"' },
+    ],
+  },
+
+  Rating: {
+    name: 'Rating',
+    description: 'Star rating display (0–5). Supports half-stars. Can be interactive (clickable) to emit a rating action.',
+    preview: [
+      { createSurface: { surfaceId: 'prev-rating', rootComponentId: 'root' } },
+      { updateComponents: { surfaceId: 'prev-rating', components: [
+        { id: 'root', component: 'Card', child: 'col' },
+        { id: 'col', component: 'Column', children: ['r1', 'r2', 'r3'] },
+        { id: 'r1', component: 'Rating', value: { literalString: '5' }, label: { literalString: 'Excellent' } },
+        { id: 'r2', component: 'Rating', value: { literalString: '3.5' }, label: { literalString: 'Good' } },
+        { id: 'r3', component: 'Rating', value: { literalString: '2' }, label: { literalString: 'Fair' } },
+      ] } },
+    ],
+    usage: `{ "id": "my-rating", "component": "Rating",
+  "value": { "path": "/stars" },
+  "label": { "literalString": "(1,240 reviews)" },
+  "interactive": false
+}`,
+    props: [
+      { name: 'value', description: 'DynamicNumber: rating value 0–5 (supports decimals)', default: 'required' },
+      { name: 'maxStars', description: 'Total star count', default: '5' },
+      { name: 'label', description: 'DynamicString: label shown beside stars', default: '-' },
+      { name: 'interactive', description: 'Allow user to click stars and emit action', default: 'false' },
+    ],
+  },
+
+  Avatar: {
+    name: 'Avatar',
+    description: 'User avatar with image or auto-generated initials fallback. Shows an optional online/offline/away status dot.',
+    preview: [
+      { createSurface: { surfaceId: 'prev-avatar', rootComponentId: 'root' } },
+      { updateComponents: { surfaceId: 'prev-avatar', components: [
+        { id: 'root', component: 'Card', child: 'col' },
+        { id: 'col', component: 'Column', children: ['row1', 'row2'] },
+        { id: 'row1', component: 'Row', children: ['a1', 'a2', 'a3', 'a4'], align: 'center', justify: 'start' },
+        { id: 'a1', component: 'Avatar', name: { literalString: 'Sarah Chen' }, src: { literalString: 'https://randomuser.me/api/portraits/women/44.jpg' }, size: 'xl', status: 'online' },
+        { id: 'a2', component: 'Avatar', name: { literalString: 'Marcus Lee' }, size: 'lg', status: 'away' },
+        { id: 'a3', component: 'Avatar', name: { literalString: 'Jordan Park' }, size: 'md', status: 'offline' },
+        { id: 'a4', component: 'Avatar', name: { literalString: 'Alex Kim' }, size: 'sm', status: 'busy' },
+        { id: 'row2', component: 'Row', children: ['label1'], align: 'center' },
+        { id: 'label1', component: 'Text', text: { literalString: 'xl (with photo) · lg · md · sm — all with initials fallback' }, usageHint: 'caption' },
+      ] } },
+    ],
+    usage: `{ "id": "my-avatar", "component": "Avatar",
+  "name": { "path": "/userName" },
+  "src": { "path": "/userPhoto" },
+  "size": "md",
+  "status": "online"
+}`,
+    props: [
+      { name: 'name', description: 'DynamicString: full name (used for initials fallback)', default: 'required' },
+      { name: 'src', description: 'DynamicString: image URL (optional)', default: '-' },
+      { name: 'size', description: 'Size: xs, sm, md, lg, xl', default: '"md"' },
+      { name: 'status', description: 'Status dot: online, offline, away, busy', default: '-' },
+    ],
+  },
+
+  Alert: {
+    name: 'Alert',
+    description: 'Inline notification banner with a severity level. Supports dismissible mode. Great for feedback, warnings, and errors.',
+    preview: [
+      { createSurface: { surfaceId: 'prev-alert', rootComponentId: 'root' } },
+      { updateComponents: { surfaceId: 'prev-alert', components: [
+        { id: 'root', component: 'Card', child: 'col' },
+        { id: 'col', component: 'Column', children: ['a1', 'a2', 'a3', 'a4'] },
+        { id: 'a1', component: 'Alert', title: { literalString: 'Info' }, message: { literalString: 'Your session will expire in 10 minutes.' }, severity: 'info' },
+        { id: 'a2', component: 'Alert', title: { literalString: 'Success' }, message: { literalString: 'Changes saved successfully.' }, severity: 'success' },
+        { id: 'a3', component: 'Alert', title: { literalString: 'Warning' }, message: { literalString: 'Storage is at 85% capacity.' }, severity: 'warning' },
+        { id: 'a4', component: 'Alert', message: { literalString: 'Authentication failed. Please try again.' }, severity: 'error', dismissible: true },
+      ] } },
+    ],
+    usage: `{ "id": "my-alert", "component": "Alert",
+  "title": { "literalString": "Action needed" },
+  "message": { "path": "/alertMessage" },
+  "severity": "warning",
+  "dismissible": true
+}`,
+    props: [
+      { name: 'message', description: 'DynamicString: main alert text', default: 'required' },
+      { name: 'title', description: 'DynamicString: optional bold title', default: '-' },
+      { name: 'severity', description: 'Color style: info, success, warning, error', default: '"info"' },
+      { name: 'dismissible', description: 'Show a close button to hide the alert', default: 'false' },
+    ],
+  },
+
+  Stat: {
+    name: 'Stat',
+    description: 'Large metric display for dashboards. Shows a primary value, a label, and an optional trend indicator (up/down/neutral).',
+    preview: [
+      { createSurface: { surfaceId: 'prev-stat', rootComponentId: 'root' } },
+      { updateComponents: { surfaceId: 'prev-stat', components: [
+        { id: 'root', component: 'Card', child: 'row' },
+        { id: 'row', component: 'Row', children: ['s1', 's2', 's3'], justify: 'spaceBetween' },
+        { id: 's1', component: 'Stat', value: { literalString: '$48.2K' }, label: { literalString: 'Revenue' }, trend: { literalString: '+14%' }, trendDirection: 'up', icon: { literalString: 'payments' } },
+        { id: 's2', component: 'Stat', value: { literalString: '3,841' }, label: { literalString: 'Orders' }, trend: { literalString: '+7%' }, trendDirection: 'up', icon: { literalString: 'shopping_cart' } },
+        { id: 's3', component: 'Stat', value: { literalString: '1.8%' }, label: { literalString: 'Churn' }, trend: { literalString: '-0.3%' }, trendDirection: 'down', icon: { literalString: 'trending_down' } },
+      ] } },
+    ],
+    usage: `{ "id": "my-stat", "component": "Stat",
+  "value": { "path": "/revenue" },
+  "label": { "literalString": "Monthly Revenue" },
+  "trend": { "literalString": "+12%" },
+  "trendDirection": "up",
+  "icon": { "literalString": "payments" }
+}`,
+    props: [
+      { name: 'value', description: 'DynamicString: the primary metric value', default: 'required' },
+      { name: 'label', description: 'DynamicString: description below the value', default: '-' },
+      { name: 'trend', description: 'DynamicString: trend text e.g. "+12%"', default: '-' },
+      { name: 'trendDirection', description: 'up, down, or neutral', default: '"neutral"' },
+      { name: 'icon', description: 'DynamicString: Material Icon name for the icon chip', default: '-' },
+    ],
+  },
 }
 
 const categories = [
@@ -511,6 +706,7 @@ const categories = [
   { name: 'Input', items: [componentDefs.TextField, componentDefs.CheckBox, componentDefs.Slider, componentDefs.DateTimeInput, componentDefs.MultipleChoice] },
   { name: 'Navigation', items: [componentDefs.Button, componentDefs.Tabs, componentDefs.Modal] },
   { name: 'Decoration', items: [componentDefs.Divider] },
+  { name: 'Extended', items: [componentDefs.Badge, componentDefs.Progress, componentDefs.Rating, componentDefs.Avatar, componentDefs.Alert, componentDefs.Stat] },
 ]
 
 const currentComponent = computed(() => {

@@ -27,11 +27,49 @@ const materialName = computed(() => {
   return camelToSnake(name)
 })
 
-const sizeClass = computed(() => {
-  return 'text-2xl'
+const sizeMap: Record<string, string> = {
+  xs: '14px',
+  sm: '16px',
+  md: '20px',
+  lg: '24px',
+  xl: '32px',
+  '2xl': '40px',
+}
+
+const iconSize = computed(() => {
+  const size = (props.definition as any).size as string
+  return sizeMap[size] ?? '20px'
 })
+
+const iconColor = computed(() => {
+  return (props.definition as any).color || 'var(--a2ui-text)'
+})
+
+const isFilled = computed(() => !!(props.definition as any).filled)
 </script>
 
 <template>
-  <span class="material-icons" :class="sizeClass" style="color: var(--a2ui-text)">{{ materialName }}</span>
+  <span
+    class="a2-icon"
+    :class="{ 'a2-icon--filled': isFilled }"
+    :style="{ fontSize: iconSize, color: iconColor }"
+  >
+    <span class="material-icons" :style="{ fontSize: 'inherit' }">{{ materialName }}</span>
+  </span>
 </template>
+
+<style scoped>
+.a2-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.a2-icon--filled {
+  width: calc(1em + 16px);
+  height: calc(1em + 16px);
+  border-radius: 50%;
+  background: var(--a2ui-primary-light, rgba(124, 58, 237, 0.1));
+}
+</style>

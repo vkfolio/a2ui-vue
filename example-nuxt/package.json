@@ -2,7 +2,7 @@
   "name": "a2ui-vue-example",
   "private": true,
   "scripts": {
-    "dev": "nuxt dev",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview"
@@ -12,8 +12,9 @@
     "vue": "^3.5.0"
   },
   "devDependencies": {
-    "nuxt": "^3.15.0",
     "@nuxtjs/tailwindcss": "^6.12.0",
+    "cross-env": "^10.1.0",
+    "nuxt": "^3.15.0",
     "typescript": "^5.7.0"
   }
 }

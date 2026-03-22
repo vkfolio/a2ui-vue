@@ -33,6 +33,12 @@ export { default as A2Image } from './components/content/A2Image.vue'
 export { default as A2Icon } from './components/content/A2Icon.vue'
 export { default as A2Video } from './components/content/A2Video.vue'
 export { default as A2AudioPlayer } from './components/content/A2AudioPlayer.vue'
+export { default as A2Badge } from './components/content/A2Badge.vue'
+export { default as A2Progress } from './components/content/A2Progress.vue'
+export { default as A2Rating } from './components/content/A2Rating.vue'
+export { default as A2Avatar } from './components/content/A2Avatar.vue'
+export { default as A2Alert } from './components/content/A2Alert.vue'
+export { default as A2Stat } from './components/content/A2Stat.vue'
 
 // Input components
 export { default as A2TextField } from './components/input/A2TextField.vue'

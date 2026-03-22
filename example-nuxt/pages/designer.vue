@@ -459,7 +459,7 @@ async function sendChat() {
         content: 'Widget updated! Check the preview.',
       })
     } else {
-      // Try parsing agent text as A2UI JSON
+      // Try parsing agent text as A2UI JSON (handles ```json code blocks too)
       const parsed = parseA2UIMessages(agentText)
       if (parsed.length > 0) {
         const newJson = JSON.stringify(parsed, null, 2)
@@ -471,15 +471,24 @@ async function sendChat() {
         dataModelText.value = JSON.stringify(dm, null, 2)
         dataEntryCount.value = dm.length
 
+        // Extract prose before/after the code block to show in chat
+        const prose = agentText
+          .replace(/```(?:json)?[\s\S]*?```/g, '')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim()
         chatMessages.value.push({
           role: 'assistant',
-          content: 'Widget updated! Check the preview.',
+          content: (prose || 'Widget updated!') + ' ✓',
         })
       } else {
-        // Just show agent's text response
+        // Strip any code blocks from display, show only prose
+        const prose = agentText
+          .replace(/```(?:json)?[\s\S]*?```/g, '[JSON updated in editor]')
+          .replace(/\n{3,}/g, '\n\n')
+          .trim()
         chatMessages.value.push({
           role: 'assistant',
-          content: agentText || 'No response from agent.',
+          content: prose || 'No response from agent.',
         })
       }
     }

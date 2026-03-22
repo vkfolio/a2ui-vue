@@ -23,17 +23,6 @@ const resolve = (val: any) => {
 
 const variant = computed(() => (props.definition.variant ?? 'default') as string)
 
-const variantClass = computed(() => {
-  switch (variant.value) {
-    case 'primary':
-      return 'a2-btn-primary'
-    case 'borderless':
-      return 'a2-btn-borderless'
-    default:
-      return 'a2-btn-default'
-  }
-})
-
 const handleClick = () => {
   const action = props.definition.action as any
   if (!action) return
@@ -64,43 +53,74 @@ const handleClick = () => {
 </script>
 
 <template>
-  <button @click="handleClick" :class="variantClass"
-    class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 cursor-pointer select-none active:scale-[0.97]">
+  <button
+    @click="handleClick"
+    :class="[`a2-btn a2-btn--${variant}`]"
+  >
     <A2Renderer :component-id="definition.child as string" :surface-id="surfaceId" />
   </button>
 </template>
 
 <style scoped>
-.a2-btn-primary {
-  background: var(--a2ui-primary, #7c3aed);
-  color: white;
+.a2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
   border: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  outline: none;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
 }
-/* Override ALL child text color inside primary button */
-.a2-btn-primary :deep(*) {
-  color: white !important;
+.a2-btn:active {
+  transform: scale(0.97);
 }
-.a2-btn-primary:hover {
-  filter: brightness(1.08);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+.a2-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
 }
 
-.a2-btn-default {
+/* Primary */
+.a2-btn--primary {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: white;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+}
+.a2-btn--primary :deep(*) {
+  color: white !important;
+}
+.a2-btn--primary:hover {
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+  filter: brightness(1.06);
+}
+
+/* Default */
+.a2-btn--default {
   background: var(--a2ui-bg-surface, #fff);
   color: var(--a2ui-text);
   border: 1px solid var(--a2ui-border, #e5e7eb);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
-.a2-btn-default:hover {
-  background: var(--a2ui-input-bg, #f3f4f6);
+.a2-btn--default:hover {
+  background: var(--a2ui-bg-hover);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.a2-btn-borderless {
+/* Borderless */
+.a2-btn--borderless {
   background: transparent;
   color: var(--a2ui-primary, #7c3aed);
   border: none;
+  padding: 9px 12px;
 }
-.a2-btn-borderless:hover {
+.a2-btn--borderless:hover {
   background: rgba(124, 58, 237, 0.08);
+  border-radius: 8px;
 }
 </style>

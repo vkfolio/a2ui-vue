@@ -9,3 +9,4 @@ __pycache__/
 *.egg-info/
 .DS_Store
 package-lock.json
+example-nuxt/pnpm-lock.yaml

@@ -107,11 +107,14 @@ function handleMessage(msg: Record<string, unknown>): void {
   if ('createSurface' in msg) {
     const cs = msg.createSurface as {
       surfaceId: string
-      catalogId: string
+      catalogId?: string
+      rootComponentId?: string
       theme?: Theme
       sendDataModel?: boolean
     }
-    createSurface(cs.surfaceId, cs.catalogId, cs.theme, cs.sendDataModel)
+    const surface = createSurface(cs.surfaceId, cs.catalogId ?? '', cs.theme, cs.sendDataModel)
+    // v0.10 uses rootComponentId to specify the root
+    if (cs.rootComponentId) surface.rootId = cs.rootComponentId
     return
   }
 
@@ -129,8 +132,20 @@ function handleMessage(msg: Record<string, unknown>): void {
       surfaceId: string
       path?: string
       value?: unknown
+      data?: Record<string, unknown>   // v0.10 flat data object
+      contents?: Array<{ key: string; valueString: string }> // v0.8 inside updateDataModel
     }
-    if (ud.value !== undefined) {
+    if (ud.data && typeof ud.data === 'object' && !Array.isArray(ud.data)) {
+      // v0.10 flat format: { data: { key: value, ... } }
+      // Ensure surface exists before writing
+      if (!surfaces.get(ud.surfaceId)) createSurface(ud.surfaceId, '')
+      for (const [key, value] of Object.entries(ud.data)) {
+        dataModel.setPath(ud.surfaceId, `/${key}`, value)
+      }
+    } else if (ud.contents) {
+      // v0.8 contents array inside updateDataModel
+      applyV08DataModelUpdate(ud.surfaceId, ud.contents)
+    } else if (ud.value !== undefined) {
       updateDataModel(ud.surfaceId, ud.path ?? '/', ud.value)
     } else if (ud.path) {
       dataModel.deletePath(ud.surfaceId, ud.path)

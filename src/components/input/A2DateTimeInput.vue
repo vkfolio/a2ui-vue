@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import type { ComponentDefinition } from '../../types'
 
 const props = defineProps<{
@@ -8,7 +8,6 @@ const props = defineProps<{
 }>()
 
 const dataModel = inject('a2ui-data-model') as any
-const surface = inject('a2ui-surface') as any
 
 const resolve = (val: any) => {
   if (val === undefined || val === null) return ''
@@ -47,20 +46,97 @@ const inputType = computed(() => {
   return 'date'
 })
 
+const isFocused = ref(false)
+const isFloating = computed(() => isFocused.value || resolvedValue.value !== '')
+
 const onInput = (e: Event) => {
   const target = e.target as HTMLInputElement
   const path = getValuePath(props.definition.value)
-  if (path) {
-    updateValue(path, target.value)
-  }
+  if (path) updateValue(path, target.value)
 }
 </script>
 
 <template>
-  <div class="flex flex-col gap-1">
-    <label v-if="resolvedLabel" class="text-sm font-medium" style="color: var(--a2ui-text)">{{ resolvedLabel }}</label>
-    <input :type="inputType" :value="resolvedValue" @input="onInput" :min="resolvedMin" :max="resolvedMax"
-      class="px-3 py-2 rounded-lg border text-sm outline-none transition-colors focus:ring-2"
-      style="background: var(--a2ui-input-bg); border-color: var(--a2ui-border); color: var(--a2ui-text); --tw-ring-color: var(--a2ui-primary)" />
+  <div class="a2-dt-field">
+    <div class="a2-dt-wrap">
+      <input
+        :type="inputType"
+        :value="resolvedValue"
+        @input="onInput"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
+        :min="resolvedMin"
+        :max="resolvedMax"
+        class="a2-dt-input"
+        :class="{ 'a2-dt-input--focused': isFocused, 'a2-dt-input--filled': isFloating }"
+      />
+      <label v-if="resolvedLabel" class="a2-dt-label" :class="{ 'a2-dt-label--floating': isFloating }">
+        {{ resolvedLabel }}
+      </label>
+      <span class="material-icons a2-dt-icon">
+        {{ inputType === 'time' ? 'schedule' : 'calendar_today' }}
+      </span>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.a2-dt-field {
+  display: flex;
+  flex-direction: column;
+}
+.a2-dt-wrap {
+  position: relative;
+}
+.a2-dt-input {
+  width: 100%;
+  padding: 18px 40px 6px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--a2ui-border);
+  background: var(--a2ui-input-bg);
+  color: var(--a2ui-text);
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.a2-dt-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 100%;
+  cursor: pointer;
+}
+.a2-dt-input--focused {
+  border-color: var(--a2ui-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+.a2-dt-label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9375rem;
+  color: var(--a2ui-text-secondary);
+  pointer-events: none;
+  transition: transform 0.15s ease, font-size 0.15s ease, color 0.15s ease;
+  transform-origin: left center;
+}
+.a2-dt-label--floating {
+  transform: translateY(-110%) scale(0.78);
+  color: var(--a2ui-primary);
+  font-weight: 500;
+}
+.a2-dt-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--a2ui-text-secondary);
+  pointer-events: none;
+}
+</style>
