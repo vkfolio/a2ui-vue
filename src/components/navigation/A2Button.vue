@@ -27,6 +27,12 @@ const handleClick = () => {
   const action = props.definition.action as any
   if (!action) return
 
+  // Plain string action: action: "submit"
+  if (typeof action === 'string') {
+    surface?.emitAction(action, props.surfaceId, props.definition.id, {})
+    return
+  }
+
   // v0.10 format: { event: { name, context } }
   if (action.event) {
     const context: Record<string, any> = {}
@@ -57,7 +63,8 @@ const handleClick = () => {
     @click="handleClick"
     :class="[`a2-btn a2-btn--${variant}`]"
   >
-    <A2Renderer :component-id="definition.child as string" :surface-id="surfaceId" />
+    <A2Renderer v-if="definition.child" :component-id="definition.child as string" :surface-id="surfaceId" />
+    <span v-else>{{ resolve(definition.label ?? definition.text) }}</span>
   </button>
 </template>
 

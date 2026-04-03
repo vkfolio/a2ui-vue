@@ -2,7 +2,7 @@
   "name": "a2ui-vue-example",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 nuxt dev",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 nuxt dev --port 3009",
     "build": "nuxt build",
     "generate": "nuxt generate",
     "preview": "nuxt preview"

@@ -1,208 +1,191 @@
 <template>
-  <div class="min-h-full flex flex-col">
-    <!-- Hero section -->
-    <div class="flex-1 flex flex-col items-center justify-center px-6 py-16">
-      <div class="max-w-2xl w-full text-center">
-        <h1 class="text-4xl font-bold mb-3 tracking-tight" style="color: var(--a2ui-text)">
-          What would you like to build?
-        </h1>
-        <p class="text-base mb-8" style="color: var(--a2ui-muted)">
-          Describe a UI widget and watch it come to life with A2UI
-        </p>
+  <section class="landing-shell">
+    <div class="hero-card">
+      <p class="eyebrow">a2ui-vue</p>
+      <h1>Library-first AG-UI rendering for Vue.</h1>
+      <p class="hero-copy">
+        The package renders dynamic widgets from the component library in <code>src/</code>.
+        The reference LangGraph agent can ask HIL questions, collect answers with widgets, and then render the final surface.
+      </p>
 
-        <!-- Input area -->
-        <div
-          class="flex items-center gap-3 p-2 rounded-xl border transition-all duration-200"
-          style="background: var(--a2ui-card-bg); border-color: var(--a2ui-card-border)"
-          :style="inputFocused ? { borderColor: 'var(--a2ui-primary)', boxShadow: '0 0 0 3px var(--a2ui-primary-light)' } : {}"
-        >
-          <input
-            v-model="prompt"
-            @focus="inputFocused = true"
-            @blur="inputFocused = false"
-            @keydown.enter="handleCreate"
-            type="text"
-            placeholder="Describe your A2UI widget..."
-            class="flex-1 px-4 py-3 text-base border-0 outline-none bg-transparent"
-            style="color: var(--a2ui-text)"
-          />
-          <button
-            @click="handleCreate"
-            :disabled="!prompt.trim() || loading"
-            class="px-6 py-3 rounded-lg text-sm font-semibold text-white border-0 cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            style="background: var(--a2ui-primary)"
-          >
-            <span v-if="loading" class="flex items-center gap-2">
-              <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              Creating...
-            </span>
-            <span v-else>Create</span>
-          </button>
-        </div>
-
-        <!-- Quick actions -->
-        <div class="flex items-center justify-center gap-4 mt-4">
-          <button
-            @click="loadBlank"
-            class="text-sm border-0 bg-transparent cursor-pointer underline"
-            style="color: var(--a2ui-muted)"
-          >
-            or Start Blank
-          </button>
-        </div>
-
-        <!-- Suggestions -->
-        <div class="flex flex-wrap items-center justify-center gap-2 mt-6">
-          <button
-            v-for="suggestion in suggestions"
-            :key="suggestion"
-            @click="prompt = suggestion"
-            class="px-3 py-1.5 rounded-full text-xs border cursor-pointer transition-all duration-150 hover:border-[var(--a2ui-primary)]"
-            style="background: var(--a2ui-card-bg); border-color: var(--a2ui-card-border); color: var(--a2ui-muted)"
-          >
-            {{ suggestion }}
-          </button>
-        </div>
-
-        <!-- Status message -->
-        <div v-if="statusText" class="mt-8 px-4 py-3 rounded-lg text-sm" style="background: var(--a2ui-card-bg); border: 1px solid var(--a2ui-card-border); color: var(--a2ui-text)">
-          <span class="flex items-center gap-2 justify-center">
-            <span v-if="loading" class="w-3 h-3 border-2 rounded-full animate-spin" style="border-color: var(--a2ui-primary); border-top-color: transparent"></span>
-            <span v-else class="material-icons text-[16px]" style="color: var(--a2ui-primary)">auto_awesome</span>
-            {{ statusText }}
-          </span>
-        </div>
-
-        <!-- Error -->
-        <div v-if="errorText" class="mt-4 px-4 py-3 rounded-lg text-sm bg-red-50 dark:bg-red-950 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
-          {{ errorText }}
-        </div>
+      <div class="hero-actions">
+        <NuxtLink to="/gallery" class="primary-link">
+          Browse Gallery
+        </NuxtLink>
+        <NuxtLink to="/designer" class="secondary-link">
+          Open Designer
+        </NuxtLink>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="text-center py-6">
-      <p class="text-xs" style="color: var(--a2ui-muted)">
-        Powered by <span class="font-semibold" style="color: var(--a2ui-primary)">A2UI Vue</span> · Google A2UI Protocol
-      </p>
+    <div class="info-grid">
+      <article class="info-card">
+        <span class="material-icons">device_hub</span>
+        <h2>Request -&gt; HIL -&gt; UI</h2>
+        <p>
+          The backend asks for missing input or confirmation through A2UI widgets instead of duplicating the same question in plain chat.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <span class="material-icons">widgets</span>
+        <h2>Library-driven output</h2>
+        <p>
+          Generated payloads are constrained by the exported component catalog and validated before the renderer mutates state.
+        </p>
+      </article>
+
+      <article class="info-card">
+        <span class="material-icons">rule</span>
+        <h2>Runtime validation</h2>
+        <p>
+          Invalid component names, props, actions, and message sequences are rejected with explicit errors so the last valid surface stays intact.
+        </p>
+      </article>
     </div>
-  </div>
+  </section>
 </template>
 
-<script setup lang="ts">
-import { connectSSE, parseA2UIMessages } from 'a2ui-vue'
+<style scoped>
+.landing-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  padding: 48px 24px;
+  max-width: 980px;
+  margin: 0 auto;
+}
 
-const prompt = ref('')
-const inputFocused = ref(false)
-const loading = ref(false)
-const statusText = ref('')
-const errorText = ref('')
+.hero-card,
+.info-card {
+  border: 1px solid var(--a2ui-card-border);
+  background: var(--a2ui-card-bg);
+  border-radius: 24px;
+  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
+}
 
-const suggestions = [
-  'Weather dashboard card',
-  'User profile with avatar',
-  'Login form with validation',
-  'Shopping cart summary',
-  'Music player controls',
-  'Notification preferences',
-]
+.hero-card {
+  padding: 32px;
+}
 
-const agentUrl = 'http://localhost:8006/agent'
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--a2ui-primary);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
 
-async function handleCreate() {
-  if (!prompt.value.trim() || loading.value) return
+.hero-card h1 {
+  margin: 0;
+  color: var(--a2ui-text);
+  font-size: clamp(2rem, 3vw, 3.25rem);
+  line-height: 1.05;
+}
 
-  loading.value = true
-  statusText.value = 'Generating your widget...'
-  errorText.value = ''
+.hero-copy {
+  margin: 18px 0 0;
+  max-width: 720px;
+  color: var(--a2ui-muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
 
-  // Collect A2UI messages from the agent
-  let collectedMessages: any[] = []
-  let agentText = ''
+.hero-copy code {
+  background: rgba(124, 58, 237, 0.08);
+  color: var(--a2ui-primary);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
 
-  try {
-    await connectSSE(agentUrl, {
-      threadId: `thread-${Date.now()}`,
-      runId: `run-${Date.now()}`,
-      messages: [{ id: `msg-${Date.now()}`, role: 'user', content: prompt.value }],
-      state: {},
-      tools: [],
-      context: [],
-      forwardedProps: {},
-    }, {
-      onText: (delta: string) => {
-        agentText += delta
-        // Show a progress indicator but don't show raw text
-        statusText.value = 'AI is designing your widget...'
-      },
-      onA2UI: (messages: any[]) => {
-        collectedMessages.push(...messages)
-        statusText.value = 'Widget generated! Opening designer...'
-      },
-      onFinished: () => {
-        // Done
-      },
-      onError: (err: any) => {
-        errorText.value = `Error: ${err.message || err.statusText || 'Connection failed. Is the Python server running on port 8006?'}`
-        loading.value = false
-        statusText.value = ''
-      },
-    })
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
 
-    // If we got A2UI messages, navigate to designer
-    if (collectedMessages.length > 0) {
-      navigateToDesigner(collectedMessages, prompt.value)
-    } else {
-      // No A2UI messages returned — agent just responded with text
-      // Try to parse text as JSON in case it returned raw A2UI
-      const parsed = parseA2UIMessages(agentText)
-      if (parsed.length > 0) {
-        navigateToDesigner(parsed, prompt.value)
-      } else {
-        errorText.value = 'The agent did not return a widget. Make sure the Python backend is running with: python server.py'
-        loading.value = false
-        statusText.value = ''
-      }
-    }
-  } catch (err: any) {
-    errorText.value = `Connection failed: ${err.message || 'Is the Python server running on port 8006?'}`
-    loading.value = false
-    statusText.value = ''
+.primary-link,
+.secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.primary-link {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: white;
+}
+
+.secondary-link {
+  color: var(--a2ui-text);
+  border: 1px solid var(--a2ui-card-border);
+}
+
+.primary-link:hover,
+.secondary-link:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.info-card {
+  padding: 22px;
+}
+
+.info-card .material-icons {
+  font-size: 26px;
+  color: var(--a2ui-primary);
+}
+
+.info-card h2 {
+  margin: 12px 0 8px;
+  color: var(--a2ui-text);
+  font-size: 1rem;
+}
+
+.info-card p {
+  margin: 0;
+  color: var(--a2ui-muted);
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 840px) {
+  .landing-shell {
+    padding: 32px 16px;
+  }
+
+  .hero-card {
+    padding: 24px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .primary-link,
+  .secondary-link {
+    width: 100%;
   }
 }
-
-function navigateToDesigner(messages: any[], description: string) {
-  // Store in sessionStorage to avoid URL length limits
-  sessionStorage.setItem('a2ui-designer-json', JSON.stringify(messages))
-  sessionStorage.setItem('a2ui-designer-name', description)
-
-  navigateTo('/designer')
-}
-
-function loadBlank() {
-  const blankMessages = [
-    {
-      surfaceUpdate: {
-        surfaceId: 'blank',
-        components: [
-          { id: 'root', component: { Card: { child: 'col' } } },
-          { id: 'col', component: { Column: { children: { explicitList: ['title', 'body'] }, alignment: 'center' } } },
-          { id: 'title', component: { Text: { text: { path: '/title' }, usageHint: 'h2' } } },
-          { id: 'body', component: { Text: { text: { path: '/body' }, usageHint: 'body' } } },
-        ],
-      },
-    },
-    {
-      dataModelUpdate: {
-        surfaceId: 'blank',
-        contents: [
-          { key: 'title', valueString: 'My Widget' },
-          { key: 'body', valueString: 'Start building your A2UI widget here.' },
-        ],
-      },
-    },
-    { beginRendering: { surfaceId: 'blank', root: 'root' } },
-  ]
-  navigateToDesigner(blankMessages, 'Blank Widget')
-}
-</script>
+</style>

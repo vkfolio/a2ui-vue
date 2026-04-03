@@ -27,7 +27,7 @@ const getValuePath = (val: any): string | null => {
   return null
 }
 
-const valuePath = computed(() => getValuePath(valueField.value))
+const valuePath = computed(() => (props.definition as any).dataPath ?? getValuePath(valueField.value))
 
 const resolvedLabel = computed(() => resolve(props.definition.label))
 
@@ -53,9 +53,10 @@ const inputType = computed(() => {
 
 const onInput = (e: Event) => {
   const target = e.target as HTMLInputElement | HTMLTextAreaElement
-  if (valuePath.value) {
+  const path = valuePath.value
+  if (path) {
     const val = variant.value === 'number' ? Number(target.value) : target.value
-    updateValue(valuePath.value, val)
+    updateValue(path, val)
   }
 }
 </script>

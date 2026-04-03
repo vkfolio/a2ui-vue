@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col h-full">
-    <!-- Top bar -->
     <div
       class="flex items-center justify-between px-4 py-2.5 border-b shrink-0"
       style="background: var(--a2ui-sidebar-bg); border-color: var(--a2ui-sidebar-border)"
@@ -41,9 +40,7 @@
       </div>
     </div>
 
-    <!-- Three-panel layout -->
     <div class="flex flex-1 overflow-hidden">
-      <!-- Left: JSON editor -->
       <div
         class="w-[420px] shrink-0 flex flex-col border-r overflow-hidden"
         style="border-color: var(--a2ui-sidebar-border)"
@@ -66,10 +63,13 @@
             Valid
           </span>
         </div>
+
         <div class="flex-1 overflow-hidden relative">
-          <!-- Line numbers + textarea -->
           <div class="flex h-full">
-            <div class="py-4 pl-3 pr-2 text-right select-none shrink-0 overflow-hidden" style="color: var(--a2ui-muted); font-size: 11px; font-family: monospace; line-height: 1.65">
+            <div
+              class="py-4 pl-3 pr-2 text-right select-none shrink-0 overflow-hidden"
+              style="color: var(--a2ui-muted); font-size: 11px; font-family: monospace; line-height: 1.65"
+            >
               <div v-for="n in lineCount" :key="n">{{ n }}</div>
             </div>
             <textarea
@@ -83,7 +83,6 @@
           </div>
         </div>
 
-        <!-- Data model section -->
         <div class="border-t" style="border-color: var(--a2ui-sidebar-border)">
           <button
             @click="showDataModel = !showDataModel"
@@ -108,7 +107,6 @@
         </div>
       </div>
 
-      <!-- Center: Live preview -->
       <div class="flex-1 flex flex-col overflow-hidden" style="background: var(--a2ui-bg)">
         <div class="flex items-center justify-between px-4 py-2 border-b" style="border-color: var(--a2ui-sidebar-border)">
           <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--a2ui-muted)">Live Preview</span>
@@ -128,8 +126,16 @@
               :messages="parsedMessages"
               :key="renderKey"
               @action="handleWidgetAction"
+              @error="handleRendererError"
             />
-            <div v-else class="text-center py-16">
+            <div
+              v-if="renderError"
+              class="mt-4 rounded-xl border px-4 py-3 text-xs leading-relaxed whitespace-pre-wrap"
+              style="border-color: rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); color: rgb(185, 28, 28)"
+            >
+              {{ renderError }}
+            </div>
+            <div v-else-if="!parsedMessages" class="text-center py-16">
               <span class="material-icons text-[48px] mb-4 block" style="color: var(--a2ui-muted)">widgets</span>
               <p class="text-sm font-medium mb-1" style="color: var(--a2ui-text)">No preview available</p>
               <p class="text-xs" style="color: var(--a2ui-muted)">Fix JSON errors or paste valid A2UI JSON</p>
@@ -138,7 +144,6 @@
         </div>
       </div>
 
-      <!-- Right: Chat panel -->
       <div
         class="w-[320px] shrink-0 flex flex-col border-l overflow-hidden"
         style="border-color: var(--a2ui-sidebar-border); background: var(--a2ui-sidebar-bg)"
@@ -147,7 +152,6 @@
           <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--a2ui-muted)">AI Assistant</span>
         </div>
 
-        <!-- Messages -->
         <div class="flex-1 overflow-y-auto p-4 space-y-3" ref="chatContainer">
           <div v-if="chatMessages.length === 0" class="text-center py-8">
             <span class="material-icons text-[32px] mb-3 block" style="color: var(--a2ui-muted)">auto_awesome</span>
@@ -161,7 +165,7 @@
             :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
           >
             <div
-              class="max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed"
+              class="max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed whitespace-pre-wrap"
               :style="{
                 background: msg.role === 'user' ? 'var(--a2ui-primary)' : 'var(--a2ui-input-bg)',
                 color: msg.role === 'user' ? 'white' : 'var(--a2ui-text)',
@@ -181,7 +185,6 @@
           </div>
         </div>
 
-        <!-- Chat input -->
         <div class="p-3 border-t" style="border-color: var(--a2ui-sidebar-border)">
           <div class="flex items-center gap-2">
             <input
@@ -205,7 +208,6 @@
       </div>
     </div>
 
-    <!-- Copied toast -->
     <Transition name="fade">
       <div
         v-if="showCopied"
@@ -219,7 +221,11 @@
 </template>
 
 <script setup lang="ts">
-import { A2StaticRenderer, connectSSE, parseA2UIMessages } from 'a2ui-vue'
+import {
+  A2StaticRenderer,
+  formatA2UIValidationErrors,
+  validateA2UIMessages,
+} from 'a2ui-vue'
 
 const route = useRoute()
 
@@ -228,12 +234,12 @@ const showCopied = ref(false)
 const copiedMessage = ref('')
 const renderKey = ref(0)
 const jsonError = ref('')
+const renderError = ref('')
 const chatContainer = ref<HTMLElement | null>(null)
 const showDataModel = ref(false)
 const dataModelText = ref('[]')
 const dataEntryCount = ref(0)
 
-// Load initial JSON from sessionStorage or query or default
 const defaultJson = [
   {
     surfaceUpdate: {
@@ -261,7 +267,6 @@ const defaultJson = [
 ]
 
 function loadInitialJson(): any[] {
-  // Priority: sessionStorage > query param > default
   if (import.meta.client) {
     const stored = sessionStorage.getItem('a2ui-designer-json')
     const storedName = sessionStorage.getItem('a2ui-designer-name')
@@ -289,11 +294,9 @@ function loadInitialJson(): any[] {
 }
 
 const initialJson = loadInitialJson()
-
 const jsonText = ref(JSON.stringify(initialJson, null, 2))
 const parsedMessages = ref<any[] | null>(initialJson)
 
-// Extract data model from messages for the data model editor
 function extractDataModel(messages: any[]): any[] {
   for (const msg of messages) {
     if (msg.dataModelUpdate?.contents) return msg.dataModelUpdate.contents
@@ -301,32 +304,43 @@ function extractDataModel(messages: any[]): any[] {
   return []
 }
 
-// Initialize data model text
 const initialData = extractDataModel(initialJson)
 dataModelText.value = JSON.stringify(initialData, null, 2)
 dataEntryCount.value = initialData.length
 
-const lineCount = computed(() => {
-  return jsonText.value.split('\n').length
-})
+const lineCount = computed(() => jsonText.value.split('\n').length)
 
-// Chat state
 const chatMessages = ref<{ role: 'user' | 'assistant'; content: string }[]>([])
 const chatInput = ref('')
 const chatLoading = ref(false)
 
+function applyMessages(messages: any[]): boolean {
+  const errors = validateA2UIMessages(messages, { mode: 'batch' })
+  if (errors.length > 0) {
+    jsonError.value = 'Invalid A2UI'
+    renderError.value = formatA2UIValidationErrors(errors)
+    parsedMessages.value = null
+    return false
+  }
+
+  parsedMessages.value = messages
+  jsonError.value = ''
+  renderError.value = ''
+  renderKey.value++
+
+  const dm = extractDataModel(messages)
+  dataModelText.value = JSON.stringify(dm, null, 2)
+  dataEntryCount.value = dm.length
+  return true
+}
+
 function onJsonChange() {
   try {
     const parsed = JSON.parse(jsonText.value)
-    parsedMessages.value = parsed
-    jsonError.value = ''
-    renderKey.value++
-    // Update data model view
-    const dm = extractDataModel(parsed)
-    dataModelText.value = JSON.stringify(dm, null, 2)
-    dataEntryCount.value = dm.length
-  } catch (e: any) {
+    applyMessages(parsed)
+  } catch {
     jsonError.value = 'Invalid JSON'
+    renderError.value = ''
     parsedMessages.value = null
   }
 }
@@ -335,7 +349,6 @@ function onDataModelChange() {
   try {
     const newData = JSON.parse(dataModelText.value)
     dataEntryCount.value = newData.length
-    // Update the dataModelUpdate in parsedMessages
     if (parsedMessages.value) {
       const updated = parsedMessages.value.map((msg: any) => {
         if (msg.dataModelUpdate) {
@@ -343,12 +356,11 @@ function onDataModelChange() {
         }
         return msg
       })
-      parsedMessages.value = updated
       jsonText.value = JSON.stringify(updated, null, 2)
-      renderKey.value++
+      applyMessages(updated)
     }
   } catch {
-    // Invalid JSON in data model - ignore
+    // ignore invalid data model edits
   }
 }
 
@@ -360,9 +372,9 @@ function formatJson() {
   try {
     const parsed = JSON.parse(jsonText.value)
     jsonText.value = JSON.stringify(parsed, null, 2)
-    jsonError.value = ''
+    applyMessages(parsed)
   } catch {
-    // Keep as-is if invalid
+    // keep current text
   }
 }
 
@@ -393,6 +405,11 @@ function handleWidgetAction(action: any) {
   })
 }
 
+function handleRendererError(error: Error) {
+  jsonError.value = 'Invalid A2UI'
+  renderError.value = error.message
+}
+
 async function sendChat() {
   if (!chatInput.value.trim() || chatLoading.value) return
 
@@ -406,98 +423,45 @@ async function sendChat() {
     chatContainer.value.scrollTop = chatContainer.value.scrollHeight
   }
 
-  // Send to agent with current JSON as context
   try {
-    const currentJson = jsonText.value
-    let collectedMessages: any[] = []
-    let agentText = ''
-
-    await connectSSE('http://localhost:8006/agent', {
-      threadId: `designer-${Date.now()}`,
-      runId: `run-${Date.now()}`,
-      messages: [{
-        id: `msg-${Date.now()}`,
-        role: 'user',
-        content: `I have an existing A2UI widget. Here is the current JSON:\n\n${currentJson}\n\nPlease modify it based on this request: ${text}\n\nReturn the complete updated A2UI JSON array.`,
-      }],
-      state: {},
-      tools: [],
-      context: [],
-      forwardedProps: {},
-    }, {
-      onText: (delta: string) => {
-        agentText += delta
-      },
-      onA2UI: (messages: any[]) => {
-        collectedMessages.push(...messages)
-      },
-      onFinished: () => {
-        // Done
-      },
-      onError: (err: any) => {
-        chatMessages.value.push({
-          role: 'assistant',
-          content: `Error: Could not connect to AI agent. Make sure the Python server is running.`,
-        })
-        chatLoading.value = false
-      },
+    const response = await fetch('http://localhost:8006/design', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: text }),
     })
 
-    // If we got A2UI messages from the tool result, update the editor
-    if (collectedMessages.length > 0) {
-      const newJson = JSON.stringify(collectedMessages, null, 2)
-      jsonText.value = newJson
-      parsedMessages.value = collectedMessages
-      renderKey.value++
+    const result = await response.json()
 
-      const dm = extractDataModel(collectedMessages)
-      dataModelText.value = JSON.stringify(dm, null, 2)
-      dataEntryCount.value = dm.length
-
+    if (result.error) {
       chatMessages.value.push({
         role: 'assistant',
-        content: 'Widget updated! Check the preview.',
+        content: `Error: ${result.error}`,
       })
-    } else {
-      // Try parsing agent text as A2UI JSON (handles ```json code blocks too)
-      const parsed = parseA2UIMessages(agentText)
-      if (parsed.length > 0) {
-        const newJson = JSON.stringify(parsed, null, 2)
-        jsonText.value = newJson
-        parsedMessages.value = parsed
-        renderKey.value++
-
-        const dm = extractDataModel(parsed)
-        dataModelText.value = JSON.stringify(dm, null, 2)
-        dataEntryCount.value = dm.length
-
-        // Extract prose before/after the code block to show in chat
-        const prose = agentText
-          .replace(/```(?:json)?[\s\S]*?```/g, '')
-          .replace(/\n{3,}/g, '\n\n')
-          .trim()
+    } else if (result.messages && Array.isArray(result.messages)) {
+      jsonText.value = JSON.stringify(result.messages, null, 2)
+      if (applyMessages(result.messages)) {
         chatMessages.value.push({
           role: 'assistant',
-          content: (prose || 'Widget updated!') + ' ✓',
+          content: 'Widget updated! Check the preview.',
         })
       } else {
-        // Strip any code blocks from display, show only prose
-        const prose = agentText
-          .replace(/```(?:json)?[\s\S]*?```/g, '[JSON updated in editor]')
-          .replace(/\n{3,}/g, '\n\n')
-          .trim()
         chatMessages.value.push({
           role: 'assistant',
-          content: prose || 'No response from agent.',
+          content: `Invalid A2UI generated.\n\n${renderError.value}`,
         })
       }
+    } else {
+      chatMessages.value.push({
+        role: 'assistant',
+        content: 'No valid response from designer.',
+      })
     }
 
     chatLoading.value = false
-  } catch (err: any) {
+  } catch {
     chatMessages.value.push({
       role: 'assistant',
-      content: `Connection error. Make sure the Python server is running on port 8006.`,
+      content: 'Connection error. Make sure the Python server is running on port 8006.',
     })
     chatLoading.value = false
   }
@@ -507,12 +471,15 @@ async function sendChat() {
     chatContainer.value.scrollTop = chatContainer.value.scrollHeight
   }
 }
+
+onJsonChange()
 </script>
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }

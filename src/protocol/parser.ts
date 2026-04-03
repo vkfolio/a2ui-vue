@@ -6,6 +6,7 @@
 export interface SSEHandlers {
   onText?: (delta: string) => void
   onA2UI?: (messages: Record<string, unknown>[]) => void
+  onToolCall?: (toolName: string, toolCallId: string) => void
   onFinished?: () => void
   onError?: (event: Record<string, unknown>) => void
 }
@@ -51,11 +52,7 @@ export function parseA2UIMessages(
   let parsed: unknown = content
 
   if (typeof content === 'string') {
-    // 1. Try to extract JSON from markdown code fence first
-    const fenceMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
-    const candidates = fenceMatch
-      ? [fenceMatch[1].trim(), content.trim()]
-      : [content.trim()]
+    const candidates = getJsonCandidates(content)
 
     for (const candidate of candidates) {
       // Strip single-line (//) and block (/* */) JS comments from JSON
@@ -82,6 +79,79 @@ export function parseA2UIMessages(
   }
 
   return []
+}
+
+function getJsonCandidates(content: string): string[] {
+  const candidates: string[] = []
+  const seen = new Set<string>()
+
+  const addCandidate = (value: string | undefined) => {
+    const candidate = value?.trim()
+    if (!candidate || seen.has(candidate)) return
+    seen.add(candidate)
+    candidates.push(candidate)
+  }
+
+  const fenceRegex = /```(?:json)?\s*([\s\S]*?)```/g
+  for (const match of content.matchAll(fenceRegex)) {
+    addCandidate(match[1])
+  }
+
+  addCandidate(content)
+
+  const extracted = extractEmbeddedJson(content)
+  for (const candidate of extracted) addCandidate(candidate)
+
+  return candidates
+}
+
+function extractEmbeddedJson(content: string): string[] {
+  const results: string[] = []
+
+  for (let start = 0; start < content.length; start++) {
+    const opening = content[start]
+    if (opening !== '[' && opening !== '{') continue
+
+    let depth = 0
+    let inString = false
+    let escaped = false
+
+    for (let end = start; end < content.length; end++) {
+      const char = content[end]
+
+      if (escaped) {
+        escaped = false
+        continue
+      }
+
+      if (char === '\\') {
+        escaped = true
+        continue
+      }
+
+      if (char === '"') {
+        inString = !inString
+        continue
+      }
+
+      if (inString) continue
+
+      if (char === '[' || char === '{') {
+        depth += 1
+        continue
+      }
+
+      if (char === ']' || char === '}') {
+        depth -= 1
+        if (depth === 0) {
+          results.push(content.slice(start, end + 1))
+          break
+        }
+      }
+    }
+  }
+
+  return results
 }
 
 // ---------------------------------------------------------------------------
@@ -192,6 +262,12 @@ function processPayload(payload: string, handlers: SSEHandlers): void {
       case 'TEXT_MESSAGE_CONTENT':
         if (typeof event.delta === 'string') {
           handlers.onText?.(event.delta)
+        }
+        return
+
+      case 'TOOL_CALL_START':
+        if (typeof event.toolCallName === 'string') {
+          handlers.onToolCall?.(event.toolCallName, String(event.toolCallId ?? ''))
         }
         return
 

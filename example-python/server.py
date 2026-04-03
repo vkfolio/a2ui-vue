@@ -25,11 +25,18 @@ app.add_middleware(
 
 
 def _is_a2ui_json(content: str) -> bool:
-    """Check if a string looks like A2UI JSON (array with surfaceUpdate)."""
+    """Check if a string looks like an A2UI payload."""
     try:
         parsed = json.loads(content)
         if isinstance(parsed, list) and any(
-            isinstance(m, dict) and "surfaceUpdate" in m for m in parsed
+            isinstance(m, dict)
+            and (
+                "createSurface" in m
+                or "updateComponents" in m
+                or "surfaceUpdate" in m
+                or "beginRendering" in m
+            )
+            for m in parsed
         ):
             return True
     except (json.JSONDecodeError, TypeError):
@@ -62,7 +69,7 @@ async def _stream_agent(
         "runId": run_id,
     })}
 
-    config = {"configurable": {"thread_id": thread_id}}
+    config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 10}
 
     try:
         # Stream events from LangGraph
@@ -144,6 +151,85 @@ async def agent_endpoint(request: Request):
         _stream_agent(messages, thread_id),
         media_type="text/event-stream",
     )
+
+
+_ALLOWED_PROPS = {
+    "Text": {"text", "variant", "usageHint"},
+    "Image": {"url", "src", "fit", "variant", "usageHint", "alt"},
+    "Icon": {"name", "size", "color"},
+    "Video": {"url", "src"},
+    "AudioPlayer": {"url", "src", "description"},
+    "Badge": {"label", "text", "variant"},
+    "Progress": {"value", "label", "variant"},
+    "Rating": {"value", "label", "maxStars", "interactive", "action"},
+    "Avatar": {"src", "name", "size", "status"},
+    "Alert": {"title", "message", "text", "severity", "dismissible"},
+    "Stat": {"value", "text", "label", "trend", "trendDirection", "icon"},
+    "Row": {"children", "justify", "align", "distribution", "alignment"},
+    "Column": {"children", "justify", "align", "distribution", "alignment"},
+    "List": {"children", "direction", "align", "alignment"},
+    "Card": {"child"},
+    "Tabs": {"tabs"},
+    "Modal": {"trigger", "content"},
+    "Divider": {"axis"},
+    "Button": {"child", "label", "text", "action", "variant", "checks"},
+    "TextField": {"label", "value", "text", "variant", "textFieldType", "dataPath", "checks", "placeholder"},
+    "CheckBox": {"label", "value", "checks"},
+    "ChoicePicker": {"label", "options", "value", "variant", "displayStyle", "filterable", "checks"},
+    "Slider": {"label", "min", "max", "value", "checks"},
+    "DateTimeInput": {"value", "enableDate", "enableTime", "min", "max", "label", "checks"},
+}
+_COMMON_PROPS = {"id", "component", "accessibility", "weight"}
+
+
+def _sanitize_payload(payload: list) -> list:
+    """Final-pass sanitization: strip unknown props and fix missing required ones."""
+    for message in payload:
+        if not isinstance(message, dict):
+            continue
+        for key in ("updateComponents", "surfaceUpdate"):
+            update = message.get(key)
+            if not isinstance(update, dict):
+                continue
+            for defn in update.get("components", []):
+                if not isinstance(defn, dict):
+                    continue
+                comp = defn.get("component")
+                comp_name = comp if isinstance(comp, str) else (
+                    next(iter(comp)) if isinstance(comp, dict) and len(comp) == 1 else None
+                )
+                if not comp_name or comp_name not in _ALLOWED_PROPS:
+                    continue
+                # Strip unknown props
+                allowed = _ALLOWED_PROPS[comp_name] | _COMMON_PROPS
+                for k in [k for k in defn if k not in allowed]:
+                    defn.pop(k)
+                # Fix missing required props
+                if comp_name == "Button" and "action" not in defn:
+                    defn["action"] = {"event": {"name": "click"}}
+                if comp_name == "Progress" and "value" not in defn and "label" not in defn:
+                    defn["value"] = 0
+                if comp_name in ("Image", "Video", "AudioPlayer") and "url" not in defn and "src" not in defn:
+                    defn["url"] = ""
+    return payload
+
+
+@app.post("/design")
+async def design_endpoint(request: Request):
+    """Direct design_widget endpoint — bypasses the agent for the designer page."""
+    from designer import design_widget
+    body = await request.json()
+    description = body.get("description", "")
+    result = design_widget.invoke(description)
+    try:
+        parsed = json.loads(result)
+        if isinstance(parsed, dict) and "error" in parsed:
+            return {"error": parsed["error"]}
+        if isinstance(parsed, list):
+            parsed = _sanitize_payload(parsed)
+        return {"messages": parsed}
+    except json.JSONDecodeError:
+        return {"error": "Failed to parse design_widget output"}
 
 
 @app.get("/health")

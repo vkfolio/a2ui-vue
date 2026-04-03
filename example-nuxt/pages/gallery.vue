@@ -153,71 +153,91 @@ const widgets = [
   {
     name: 'Photo Gallery',
     icon: 'photo_library',
-    messages: [{ "surfaceUpdate": { "surfaceId": "gallery-photos", "components": [
-      { "id": "root", "component": { "Card": { "child": "col" } } },
-      { "id": "col", "component": { "Column": { "children": { "explicitList": ["header-row", "hero-img", "thumb-row", "meta-row"] } } } },
-      { "id": "header-row", "component": { "Row": { "children": { "explicitList": ["title", "badge"] }, "distribution": "spaceBetween", "alignment": "center" } } },
-      { "id": "title", "component": { "Text": { "text": { "literalString": "Iceland Trip" }, "usageHint": "h4" } } },
-      { "id": "badge", "component": { "Badge": { "label": { "literalString": "24 photos" }, "variant": "info" } } },
-      { "id": "hero-img", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland-hero/600/338" }, "fit": "cover", "usageHint": "mediumFeature" } } },
-      { "id": "thumb-row", "component": { "Row": { "children": { "explicitList": ["t1","t2","t3","t4"] } } } },
-      { "id": "t1", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland1/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
-      { "id": "t2", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland2/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
-      { "id": "t3", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland3/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
-      { "id": "t4", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland4/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
-      { "id": "meta-row", "component": { "Row": { "children": { "explicitList": ["loc-icon", "loc-text", "views-text"] }, "alignment": "center", "distribution": "spaceBetween" } } },
-      { "id": "loc-icon", "component": { "Icon": { "name": { "literalString": "locationOn" } } } },
-      { "id": "loc-text", "component": { "Text": { "text": { "literalString": "Reykjavik, Iceland" }, "usageHint": "caption" } } },
-      { "id": "views-text", "component": { "Text": { "text": { "literalString": "2.1K views" }, "usageHint": "caption" } } },
-    ] } }, { "beginRendering": { "surfaceId": "gallery-photos", "root": "root" } }],
+    messages: [{
+      "surfaceUpdate": {
+        "surfaceId": "gallery-photos", "components": [
+          { "id": "root", "component": { "Card": { "child": "col" } } },
+          { "id": "col", "component": { "Column": { "children": { "explicitList": ["header-row", "hero-img", "thumb-row", "meta-row"] } } } },
+          { "id": "header-row", "component": { "Row": { "children": { "explicitList": ["title", "badge"] }, "distribution": "spaceBetween", "alignment": "center" } } },
+          { "id": "title", "component": { "Text": { "text": { "literalString": "Iceland Trip" }, "usageHint": "h4" } } },
+          { "id": "badge", "component": { "Badge": { "label": { "literalString": "24 photos" }, "variant": "info" } } },
+          { "id": "hero-img", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland-hero/600/338" }, "fit": "cover", "usageHint": "mediumFeature" } } },
+          { "id": "thumb-row", "component": { "Row": { "children": { "explicitList": ["t1", "t2", "t3", "t4"] } } } },
+          { "id": "t1", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland1/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
+          { "id": "t2", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland2/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
+          { "id": "t3", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland3/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
+          { "id": "t4", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/iceland4/120/90" }, "fit": "cover", "usageHint": "smallFeature" } } },
+          { "id": "meta-row", "component": { "Row": { "children": { "explicitList": ["loc-icon", "loc-text", "views-text"] }, "alignment": "center", "distribution": "spaceBetween" } } },
+          { "id": "loc-icon", "component": { "Icon": { "name": { "literalString": "locationOn" } } } },
+          { "id": "loc-text", "component": { "Text": { "text": { "literalString": "Reykjavik, Iceland" }, "usageHint": "caption" } } },
+          { "id": "views-text", "component": { "Text": { "text": { "literalString": "2.1K views" }, "usageHint": "caption" } } },
+        ]
+      }
+    }, { "beginRendering": { "surfaceId": "gallery-photos", "root": "root" } }],
   },
   {
     name: 'Video Player',
     icon: 'play_circle',
-    messages: [{ "surfaceUpdate": { "surfaceId": "gallery-video", "components": [
-      { "id": "root", "component": { "Card": { "child": "col" } } },
-      { "id": "col", "component": { "Column": { "children": { "explicitList": ["vid", "info-row", "desc", "tag-row"] } } } },
-      { "id": "vid", "component": { "Video": {
-        "url": { "literalString": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
-        "poster": { "literalString": "https://picsum.photos/seed/video-thumb/600/338" }
-      } } },
-      { "id": "info-row", "component": { "Row": { "children": { "explicitList": ["vtitle", "dur-badge"] }, "distribution": "spaceBetween", "alignment": "center" } } },
-      { "id": "vtitle", "component": { "Text": { "text": { "literalString": "Big Buck Bunny" }, "usageHint": "h4" } } },
-      { "id": "dur-badge", "component": { "Badge": { "label": { "literalString": "9:56" }, "variant": "neutral" } } },
-      { "id": "desc", "component": { "Text": { "text": { "literalString": "A large and lovably naive bunny discovers the joys of friendship and the dangers of the forest." }, "usageHint": "caption" } } },
-      { "id": "tag-row", "component": { "Row": { "children": { "explicitList": ["t-anim", "t-short", "t-open"] } } } },
-      { "id": "t-anim", "component": { "Badge": { "label": { "literalString": "Animation" }, "variant": "primary" } } },
-      { "id": "t-short", "component": { "Badge": { "label": { "literalString": "Short Film" }, "variant": "info" } } },
-      { "id": "t-open", "component": { "Badge": { "label": { "literalString": "Open Source" }, "variant": "success" } } },
-    ] } }, { "beginRendering": { "surfaceId": "gallery-video", "root": "root" } }],
+    messages: [{
+      "surfaceUpdate": {
+        "surfaceId": "gallery-video", "components": [
+          { "id": "root", "component": { "Card": { "child": "col" } } },
+          { "id": "col", "component": { "Column": { "children": { "explicitList": ["vid", "info-row", "desc", "tag-row"] } } } },
+          {
+            "id": "vid", "component": {
+              "Video": {
+                "url": { "literalString": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" },
+                "poster": { "literalString": "https://picsum.photos/seed/video-thumb/600/338" }
+              }
+            }
+          },
+          { "id": "info-row", "component": { "Row": { "children": { "explicitList": ["vtitle", "dur-badge"] }, "distribution": "spaceBetween", "alignment": "center" } } },
+          { "id": "vtitle", "component": { "Text": { "text": { "literalString": "Big Buck Bunny" }, "usageHint": "h4" } } },
+          { "id": "dur-badge", "component": { "Badge": { "label": { "literalString": "9:56" }, "variant": "neutral" } } },
+          { "id": "desc", "component": { "Text": { "text": { "literalString": "A large and lovably naive bunny discovers the joys of friendship and the dangers of the forest." }, "usageHint": "caption" } } },
+          { "id": "tag-row", "component": { "Row": { "children": { "explicitList": ["t-anim", "t-short", "t-open"] } } } },
+          { "id": "t-anim", "component": { "Badge": { "label": { "literalString": "Animation" }, "variant": "primary" } } },
+          { "id": "t-short", "component": { "Badge": { "label": { "literalString": "Short Film" }, "variant": "info" } } },
+          { "id": "t-open", "component": { "Badge": { "label": { "literalString": "Open Source" }, "variant": "success" } } },
+        ]
+      }
+    }, { "beginRendering": { "surfaceId": "gallery-video", "root": "root" } }],
   },
   {
     name: 'Podcast Player',
     icon: 'headphones',
-    messages: [{ "surfaceUpdate": { "surfaceId": "gallery-podcast", "components": [
-      { "id": "root", "component": { "Card": { "child": "col" } } },
-      { "id": "col", "component": { "Column": { "children": { "explicitList": ["show-row", "player", "divider", "ep-list"] } } } },
-      { "id": "show-row", "component": { "Row": { "children": { "explicitList": ["show-art", "show-meta"] }, "alignment": "center" } } },
-      { "id": "show-art", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/podcast-show/80/80" }, "fit": "cover", "usageHint": "smallFeature" } } },
-      { "id": "show-meta", "component": { "Column": { "children": { "explicitList": ["show-name", "ep-count"] } } } },
-      { "id": "show-name", "component": { "Text": { "text": { "literalString": "Design Dialogues" }, "usageHint": "h4" } } },
-      { "id": "ep-count", "component": { "Text": { "text": { "literalString": "Episode 42 · 58 min" }, "usageHint": "caption" } } },
-      { "id": "player", "component": { "AudioPlayer": {
-        "url": { "literalString": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        "title": { "literalString": "The Future of AI Design Tools" },
-        "artist": { "literalString": "Design Dialogues" },
-        "cover": { "literalString": "https://picsum.photos/seed/podcast-cover/120/120" }
-      } } },
-      { "id": "divider", "component": { "Divider": {} } },
-      { "id": "ep-list", "component": { "Column": { "children": { "explicitList": ["ep-lbl", "ep1-row", "ep2-row"] } } } },
-      { "id": "ep-lbl", "component": { "Text": { "text": { "literalString": "More Episodes" }, "usageHint": "h5" } } },
-      { "id": "ep1-row", "component": { "Row": { "children": { "explicitList": ["ep1-info", "ep1-dur"] }, "distribution": "spaceBetween", "alignment": "center" } } },
-      { "id": "ep1-info", "component": { "Text": { "text": { "literalString": "Ep 41 — Motion Design Trends 2025" }, "usageHint": "body" } } },
-      { "id": "ep1-dur", "component": { "Text": { "text": { "literalString": "44 min" }, "usageHint": "caption" } } },
-      { "id": "ep2-row", "component": { "Row": { "children": { "explicitList": ["ep2-info", "ep2-dur"] }, "distribution": "spaceBetween", "alignment": "center" } } },
-      { "id": "ep2-info", "component": { "Text": { "text": { "literalString": "Ep 40 — Color Theory Deep Dive" }, "usageHint": "body" } } },
-      { "id": "ep2-dur", "component": { "Text": { "text": { "literalString": "51 min" }, "usageHint": "caption" } } },
-    ] } }, { "beginRendering": { "surfaceId": "gallery-podcast", "root": "root" } }],
+    messages: [{
+      "surfaceUpdate": {
+        "surfaceId": "gallery-podcast", "components": [
+          { "id": "root", "component": { "Card": { "child": "col" } } },
+          { "id": "col", "component": { "Column": { "children": { "explicitList": ["show-row", "player", "divider", "ep-list"] } } } },
+          { "id": "show-row", "component": { "Row": { "children": { "explicitList": ["show-art", "show-meta"] }, "alignment": "center" } } },
+          { "id": "show-art", "component": { "Image": { "url": { "literalString": "https://picsum.photos/seed/podcast-show/80/80" }, "fit": "cover", "usageHint": "smallFeature" } } },
+          { "id": "show-meta", "component": { "Column": { "children": { "explicitList": ["show-name", "ep-count"] } } } },
+          { "id": "show-name", "component": { "Text": { "text": { "literalString": "Design Dialogues" }, "usageHint": "h4" } } },
+          { "id": "ep-count", "component": { "Text": { "text": { "literalString": "Episode 42 · 58 min" }, "usageHint": "caption" } } },
+          {
+            "id": "player", "component": {
+              "AudioPlayer": {
+                "url": { "literalString": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+                "title": { "literalString": "The Future of AI Design Tools" },
+                "artist": { "literalString": "Design Dialogues" },
+                "cover": { "literalString": "https://picsum.photos/seed/podcast-cover/120/120" }
+              }
+            }
+          },
+          { "id": "divider", "component": { "Divider": {} } },
+          { "id": "ep-list", "component": { "Column": { "children": { "explicitList": ["ep-lbl", "ep1-row", "ep2-row"] } } } },
+          { "id": "ep-lbl", "component": { "Text": { "text": { "literalString": "More Episodes" }, "usageHint": "h5" } } },
+          { "id": "ep1-row", "component": { "Row": { "children": { "explicitList": ["ep1-info", "ep1-dur"] }, "distribution": "spaceBetween", "alignment": "center" } } },
+          { "id": "ep1-info", "component": { "Text": { "text": { "literalString": "Ep 41 — Motion Design Trends 2025" }, "usageHint": "body" } } },
+          { "id": "ep1-dur", "component": { "Text": { "text": { "literalString": "44 min" }, "usageHint": "caption" } } },
+          { "id": "ep2-row", "component": { "Row": { "children": { "explicitList": ["ep2-info", "ep2-dur"] }, "distribution": "spaceBetween", "alignment": "center" } } },
+          { "id": "ep2-info", "component": { "Text": { "text": { "literalString": "Ep 40 — Color Theory Deep Dive" }, "usageHint": "body" } } },
+          { "id": "ep2-dur", "component": { "Text": { "text": { "literalString": "51 min" }, "usageHint": "caption" } } },
+        ]
+      }
+    }, { "beginRendering": { "surfaceId": "gallery-podcast", "root": "root" } }],
   },
   {
     name: 'Profile Settings',

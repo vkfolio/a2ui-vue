@@ -1,117 +1,41 @@
-import json
 import uuid
+
 from langchain_core.tools import tool
+
+from a2ui_utils import component, create_surface_payload, event_action
 
 
 @tool
 def show_task_list(tasks: list[dict]) -> str:
-    """Show an interactive task list with checkboxes and action buttons.
-    Each task should have 'title' (str) and 'completed' (bool).
-    Example: tasks=[{"title": "Buy groceries", "completed": false}]
-    """
+    """Show an interactive task list with checkbox items and action buttons."""
     surface_id = f"tasks-{uuid.uuid4().hex[:8]}"
-
-    task_ids = []
+    task_rows = []
     components = [
-        {"id": "root", "component": {"Card": {"child": "main-column"}}},
+        component("root", "Card", child="main"),
+        component("header", "Text", text={"path": "/header"}, variant="h2"),
     ]
 
-    # Header
-    components.append({
-        "id": "header-text",
-        "component": {
-            "Text": {"text": {"path": "/header"}, "usageHint": "h2"},
-        },
-    })
+    for index, _ in enumerate(tasks):
+        row_id = f"task-{index}"
+        task_rows.append(row_id)
+        components.extend(
+            [
+                component(row_id, "Row", children={"explicitList": [f"{row_id}-check"]}, align="center"),
+                component(f"{row_id}-check", "CheckBox", label={"path": f"/tasks/{index}/title"}, value={"path": f"/tasks/{index}/completed"}),
+            ]
+        )
 
-    # Build a row per task: checkbox + title
-    for i, task in enumerate(tasks):
-        row_id = f"task-{i}"
-        cb_id = f"task-{i}-cb"
-        task_ids.append(row_id)
+    components.extend(
+        [
+            component("completeText", "Text", text="Complete All"),
+            component("completeAll", "Button", child="completeText", action=event_action("complete_all"), variant="default"),
+            component("clearText", "Text", text="Clear Done"),
+            component("clearDone", "Button", child="clearText", action=event_action("clear_done"), variant="borderless"),
+            component("actions", "Row", children={"explicitList": ["completeAll", "clearDone"]}, justify="spaceBetween", align="center"),
+            component("main", "Column", children={"explicitList": ["header", *task_rows, "actions"]}, align="stretch"),
+        ]
+    )
 
-        components.extend([
-            {
-                "id": row_id,
-                "component": {
-                    "Row": {
-                        "children": {"explicitList": [cb_id]},
-                        "alignment": "center",
-                    },
-                },
-            },
-            {
-                "id": cb_id,
-                "component": {
-                    "CheckBox": {
-                        "label": {"path": f"/tasks/{i}/title"},
-                        "value": {"path": f"/tasks/{i}/completed"},
-                    },
-                },
-            },
-        ])
-
-    # Add All-done / Clear buttons row
-    components.extend([
-        {
-            "id": "actions-row",
-            "component": {
-                "Row": {
-                    "children": {
-                        "explicitList": ["complete-all-btn", "clear-done-btn"]
-                    },
-                },
-            },
-        },
-        {
-            "id": "complete-all-text",
-            "component": {"Text": {"text": {"literalString": "Complete All"}}},
-        },
-        {
-            "id": "complete-all-btn",
-            "component": {
-                "Button": {
-                    "child": "complete-all-text",
-                    "action": {"name": "complete_all", "context": []},
-                },
-            },
-        },
-        {
-            "id": "clear-done-text",
-            "component": {"Text": {"text": {"literalString": "Clear Done"}}},
-        },
-        {
-            "id": "clear-done-btn",
-            "component": {
-                "Button": {
-                    "child": "clear-done-text",
-                    "action": {"name": "clear_done", "context": []},
-                },
-            },
-        },
-    ])
-
-    # Main column children
-    main_children = ["header-text"] + task_ids + ["actions-row"]
-    components.insert(1, {
-        "id": "main-column",
-        "component": {
-            "Column": {"children": {"explicitList": main_children}},
-        },
-    })
-
-    # Data model
     total = len(tasks)
-    done = sum(1 for t in tasks if t.get("completed"))
-    contents = [
-        {"key": "header", "valueString": f"Tasks ({done}/{total})"},
-        {"key": "tasks", "valueString": json.dumps(tasks)},
-    ]
-
-    messages = [
-        {"surfaceUpdate": {"surfaceId": surface_id, "components": components}},
-        {"dataModelUpdate": {"surfaceId": surface_id, "contents": contents}},
-        {"beginRendering": {"surfaceId": surface_id, "root": "root"}},
-    ]
-
-    return json.dumps(messages)
+    done = sum(1 for task in tasks if task.get("completed"))
+    return create_surface_payload(surface_id, components, data={"header": f"Tasks ({done}/{total})", "tasks": tasks})

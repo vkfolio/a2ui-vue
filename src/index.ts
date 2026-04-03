@@ -59,6 +59,7 @@ export { useSurface } from './composables/useSurface'
 // Protocol
 export { connectSSE, parseA2UIMessages } from './protocol/parser'
 export { sendAction, sendFunctionResponse, createAction } from './protocol/emitter'
+export { validateA2UIMessages, formatA2UIValidationErrors } from './protocol/validation'
 
 // Functions
 export { evaluateFunction, builtinRegistry } from './functions/builtins'
@@ -96,6 +97,12 @@ export type {
   IconComponent,
   VideoComponent,
   AudioPlayerComponent,
+  BadgeComponent,
+  ProgressComponent,
+  RatingComponent,
+  AvatarComponent,
+  AlertComponent,
+  StatComponent,
   RowComponent,
   ColumnComponent,
   ListComponent,

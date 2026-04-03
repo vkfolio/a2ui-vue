@@ -1,164 +1,186 @@
 /**
  * A2UI Component Catalog for LLM Context
  *
- * This provides the component specification as a string that can be
- * included in LLM system prompts to enable AI agents to generate
- * valid A2UI component JSON.
+ * This string is the canonical prompt contract for example backends in this repo.
+ * It should stay aligned with the renderer components implemented in `src/`.
  */
 
 export const A2UI_COMPONENT_CATALOG = `
-# A2UI Component Catalog (v0.10)
+# A2UI Vue Component Catalog
 
-You generate A2UI component JSON. Each surface is an array of messages:
-1. surfaceUpdate: defines components
-2. dataModelUpdate: sets data values
-3. beginRendering: starts rendering from root
+You generate valid A2UI JSON for the components implemented by this package.
 
-## Message Format
+Prefer the v0.10 message flow:
+1. createSurface
+2. updateComponents
+3. updateDataModel
+
+The renderer also supports the older v0.8 compatibility flow:
+1. surfaceUpdate
+2. dataModelUpdate
+3. beginRendering
+
+## Preferred v0.10 Message Format
 
 \`\`\`json
 [
   {
-    "surfaceUpdate": {
+    "version": "v0.10",
+    "createSurface": {
       "surfaceId": "unique-id",
-      "components": [ ...component definitions... ]
+      "catalogId": "a2ui-vue",
+      "rootComponentId": "root"
     }
   },
   {
-    "dataModelUpdate": {
+    "version": "v0.10",
+    "updateComponents": {
       "surfaceId": "unique-id",
-      "contents": [
-        { "key": "fieldName", "valueString": "value or JSON string" }
-      ]
+      "components": [ ...flat component definitions... ]
     }
   },
   {
-    "beginRendering": {
+    "version": "v0.10",
+    "updateDataModel": {
       "surfaceId": "unique-id",
-      "root": "root"
+      "path": "/",
+      "value": { "fieldName": "value" }
     }
   }
 ]
 \`\`\`
 
-## Component Definition Format
+## Component Definition Formats
 
-Each component is: { "id": "unique-id", "component": { "ComponentType": { ...props } } }
+Preferred flat format:
+\`\`\`json
+{ "id": "title", "component": "Text", "text": "Hello", "variant": "h2" }
+\`\`\`
 
-One component MUST have id "root" to serve as the tree root.
+Compatibility format still accepted by the renderer:
+\`\`\`json
+{ "id": "title", "component": { "Text": { "text": "Hello", "usageHint": "h2" } } }
+\`\`\`
+
+One component must have id \`"root"\`.
 
 ## Available Components
 
-### Layout Components
+### Layout
 
-**Row** — Horizontal flex container
-Props: children (ChildList), alignment (start|center|end|stretch), distribution (start|center|end|spaceBetween|spaceAround|spaceEvenly)
+- Row: children, justify, align. Compat aliases: distribution, alignment.
+- Column: children, justify, align. Compat aliases: distribution, alignment.
+- List: children, direction, align. Compat alias: alignment.
+- Card: child.
+- Tabs: tabs.
+- Modal: trigger, content.
+- Divider: axis.
 
-**Column** — Vertical flex container
-Props: children (ChildList), alignment (start|center|end|stretch), distribution (start|center|end|spaceBetween|spaceAround|spaceEvenly)
+### Content
 
-**List** — Scrollable list
-Props: children (ChildList), direction (vertical|horizontal), alignment (start|center|end|stretch)
+- Text: text, variant. Compat alias: usageHint.
+- Image: url, fit, variant. Compat aliases: src, usageHint.
+- Icon: name.
+- Video: url.
+- AudioPlayer: url, description.
+- Badge: label/text, variant.
+- Progress: value, label, variant.
+- Rating: value, label, maxStars, interactive, action.
+- Avatar: src, name, size, status.
+- Alert: title, message/text, severity, dismissible.
+- Stat: value/text, label, trend, trendDirection, icon.
 
-**Card** — Bordered container with shadow
-Props: child (single component ID)
+### Form Controls
 
-**Tabs** — Tabbed interface
-Props: tabs (array of {title: DynamicString, child: componentId})
+- TextField: label, value, variant. Compat aliases: text, textFieldType, dataPath.
+- CheckBox: label, value.
+- ChoicePicker: label, options, value, variant, displayStyle, filterable.
+- Slider: label, min, max, value.
+- DateTimeInput: value, enableDate, enableTime, min, max, label.
 
-**Modal** — Overlay dialog
-Props: trigger (componentId), content (componentId)
+### Navigation
 
-**Divider** — Horizontal or vertical line
-Props: axis (horizontal|vertical)
+- Button: child or label/text, action, variant.
 
-### Content Components
+## Actions
 
-**Text** — Display text with typography
-Props: text (DynamicString), usageHint/variant (h1|h2|h3|h4|h5|caption|body)
+Preferred action format:
+\`\`\`json
+{
+  "event": {
+    "name": "submit",
+    "context": {
+      "source": "hil-form"
+    }
+  }
+}
+\`\`\`
 
-**Image** — Display image
-Props: url (DynamicString), fit (contain|cover|fill|none|scaleDown), usageHint (icon|avatar|smallFeature|mediumFeature|largeFeature|header)
-
-**Icon** — Material icon
-Props: name (icon name string, e.g. "home", "search", "settings", "favorite", "star", "check", "close", "edit", "delete", "add", "person", "mail", "phone", "locationOn", "calendarToday", "shoppingCart", "payment", "lock", "visibility")
-
-**Video** — Video player
-Props: url (DynamicString)
-
-**AudioPlayer** — Audio player
-Props: url (DynamicString), description (DynamicString)
-
-### Input Components
-
-**TextField** — Text input
-Props: label (DynamicString), value (DynamicString), variant (shortText|longText|number|obscured)
-
-**CheckBox** — Boolean toggle
-Props: label (DynamicString), value (DynamicBoolean)
-
-**ChoicePicker** — Select/multi-select
-Props: label (DynamicString), options ([{label, value}]), value (DynamicStringList), variant (mutuallyExclusive|multipleSelection), displayStyle (checkbox|chips)
-
-**Slider** — Numeric range
-Props: label (DynamicString), min (number), max (number), value (DynamicNumber)
-
-**DateTimeInput** — Date/time picker
-Props: value (DynamicString), enableDate (bool), enableTime (bool), label (DynamicString)
-
-### Navigation Components
-
-**Button** — Clickable button
-Props: child (componentId — usually a Text), action ({name: string, context: []}), variant (default|primary|borderless)
+Compatibility action formats still accepted:
+- \`"submit"\`
+- \`{ "name": "submit", "context": {} }\`
 
 ## Dynamic Values
 
-- Literal string: "Hello"
-- Data binding: { "path": "/dataKey" }
-- Both reference keys in dataModelUpdate
+- Literal string: \`"Hello"\`
+- Literal wrapper: \`{ "literalString": "Hello" }\`
+- Data binding: \`{ "path": "/user/name" }\`
 
-## ChildList
+## Child Lists
 
-- Static: { "explicitList": ["child-1", "child-2"] }
-- Dynamic template: { "componentId": "template-id", "path": "/listKey" }
+- Static list: \`{ "explicitList": ["child-a", "child-b"] }\`
+- Template list: \`{ "componentId": "row-template", "path": "/items" }\`
 
-## Example: Weather Card
+## Example: Human-In-The-Loop Input Widget
 
 \`\`\`json
 [
   {
-    "surfaceUpdate": {
-      "surfaceId": "weather",
+    "version": "v0.10",
+    "createSurface": {
+      "surfaceId": "city-question",
+      "catalogId": "a2ui-vue",
+      "rootComponentId": "root"
+    }
+  },
+  {
+    "version": "v0.10",
+    "updateComponents": {
+      "surfaceId": "city-question",
       "components": [
-        { "id": "root", "component": { "Card": { "child": "col" } } },
-        { "id": "col", "component": { "Column": { "children": { "explicitList": ["city", "temp", "cond"] }, "alignment": "center" } } },
-        { "id": "city", "component": { "Text": { "text": { "path": "/city" }, "usageHint": "h2" } } },
-        { "id": "temp", "component": { "Text": { "text": { "path": "/temp" }, "usageHint": "h1" } } },
-        { "id": "cond", "component": { "Text": { "text": { "path": "/condition" }, "usageHint": "caption" } } }
+        { "id": "root", "component": "Card", "child": "col" },
+        { "id": "col", "component": "Column", "children": { "explicitList": ["title", "field", "submit"] }, "align": "stretch" },
+        { "id": "title", "component": "Text", "text": "Which city should I use?", "variant": "h3" },
+        { "id": "field", "component": "TextField", "label": "City", "value": { "path": "/userInput" }, "variant": "shortText" },
+        { "id": "submitText", "component": "Text", "text": "Submit" },
+        { "id": "submit", "component": "Button", "child": "submitText", "action": { "event": { "name": "submit" } }, "variant": "primary" }
       ]
     }
   },
   {
-    "dataModelUpdate": {
-      "surfaceId": "weather",
-      "contents": [
-        { "key": "city", "valueString": "Tokyo" },
-        { "key": "temp", "valueString": "22°C" },
-        { "key": "condition", "valueString": "Partly Cloudy" }
-      ]
+    "version": "v0.10",
+    "updateDataModel": {
+      "surfaceId": "city-question",
+      "path": "/",
+      "value": {
+        "userInput": ""
+      }
     }
-  },
-  { "beginRendering": { "surfaceId": "weather", "root": "root" } }
+  }
 ]
 \`\`\`
 
-RULES:
-- Always include surfaceUpdate, dataModelUpdate, and beginRendering
-- Root component must have id "root"
-- Use data bindings ({ "path": "/key" }) for dynamic values
-- Keep component IDs short and descriptive
-- Wrap multiple children in Row or Column containers
-- Use Card as the outermost wrapper for visual polish
+## Rules
+
+- Use only components implemented by this package.
+- Use only supported props for each component.
+- Keep ids short and descriptive.
+- Use Card as the outer wrapper for HIL questions and compact widgets.
+- For HIL actions, always include a clickable Button with an action.
+- Never use invented components such as Form, Input, InputField, PasswordField, EmailField, Stack, Container, Section, or Heading.
+- If the requested UI is higher-level than this catalog supports, decompose it into the nearest supported primitives instead of inventing a new component.
+- If you use v0.8 compatibility shape, keep it fully valid and consistent.
+- Output only the JSON payload, with no markdown explanation.
 `
 
 export const ICON_NAMES = [

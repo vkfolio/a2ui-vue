@@ -16,6 +16,7 @@ import { useDataModel } from '../composables/useDataModel'
 import { useSurface } from '../composables/useSurface'
 import { connectSSE } from '../protocol/parser'
 import { sendAction } from '../protocol/emitter'
+import { formatA2UIValidationErrors, validateA2UIMessages } from '../protocol/validation'
 import { injectThemeStyles } from '../theme/tokens'
 import A2Renderer from './A2Renderer.vue'
 
@@ -104,6 +105,12 @@ async function send(text: string) {
         emit('message', delta)
       },
       onA2UI: (messages: any[]) => {
+        const errors = validateA2UIMessages(messages, { mode: 'stream' })
+        if (errors.length > 0) {
+          isConnected.value = false
+          emit('error', new Error(formatA2UIValidationErrors(errors)))
+          return
+        }
         for (const msg of messages) {
           surface.handleMessage(msg)
         }

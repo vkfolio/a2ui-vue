@@ -1,6 +1,12 @@
 # A2UI Python Backend (FastAPI + LangGraph)
 
-A FastAPI server that uses LangGraph to serve an AI agent capable of generating A2UI widgets.
+Reference LangGraph backend for the `a2ui-vue` package.
+
+This backend demonstrates a widget-first HIL flow:
+
+- ask for missing input with an A2UI form
+- request confirmation with an A2UI confirm card
+- generate the final widget from the package component library
 
 ## Setup
 
@@ -8,21 +14,11 @@ A FastAPI server that uses LangGraph to serve an AI agent capable of generating 
 cd example-python
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
-
 pip install -r requirements.txt
-
 cp .env.example .env
-# Edit .env with your API key(s)
 ```
 
-## Configuration
-
-Set `LLM_PROVIDER` in `.env` to one of: `openai`, `anthropic`, `google`.
-
-Provide the corresponding API key:
-- `OPENAI_API_KEY` for OpenAI
-- `ANTHROPIC_API_KEY` for Anthropic
-- `GOOGLE_API_KEY` for Google
+Set `LLM_PROVIDER` in `.env` to `openai`, `anthropic`, or `google`, then provide the matching API key.
 
 ## Run
 
@@ -34,28 +30,34 @@ The server starts on `http://localhost:8006`.
 
 ## API
 
-### POST /agent
-
-AG-UI compatible SSE endpoint. Send a JSON body:
+`POST /agent` accepts AG-UI-style chat input:
 
 ```json
 {
-  "messages": [{"role": "user", "content": "Show me the weather in Tokyo"}],
+  "messages": [{"role": "user", "content": "Show me the weather"}],
   "threadId": "optional-thread-id"
 }
 ```
 
-Returns an SSE stream with events: `RUN_STARTED`, `TEXT_MESSAGE_CONTENT`, `TOOL_CALL_START`, `TOOL_CALL_RESULT`, `RUN_FINISHED`.
+The SSE response emits:
 
-Tool results containing A2UI JSON are emitted as `TOOL_CALL_RESULT` events.
+- `RUN_STARTED`
+- `TEXT_MESSAGE_CONTENT`
+- `TOOL_CALL_START`
+- `TOOL_CALL_RESULT`
+- `RUN_FINISHED`
 
-## Available Tools
+Widget payloads are emitted inside `TOOL_CALL_RESULT`.
+
+## Tools
 
 | Tool | Description |
 |------|-------------|
-| `show_weather` | Weather card with temperature and forecast |
-| `show_profile` | User profile card with avatar and stats |
-| `show_task_list` | Interactive task list with checkboxes |
-| `show_login_form` | Login form with email/password fields |
-| `show_stats_card` | Stats dashboard with icons and numbers |
+| `show_weather` | Weather card |
+| `show_profile` | Profile card |
+| `show_task_list` | Interactive task list |
+| `show_login_form` | Login form |
+| `show_stats_card` | Stats dashboard |
+| `confirm_action` | Human approval card |
+| `collect_user_input` | Missing-input widget |
 | `design_widget` | LLM-powered custom widget designer |

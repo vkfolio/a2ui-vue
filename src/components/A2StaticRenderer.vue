@@ -4,9 +4,10 @@
  * Pass in an array of A2UI messages (v0.8 or v0.10 format) and it renders them.
  * Perfect for gallery previews, static examples, and testing.
  */
-import { provide, onMounted, watch, ref, computed } from 'vue'
+import { provide, watch, ref, computed } from 'vue'
 import { useDataModel } from '../composables/useDataModel'
 import { useSurface } from '../composables/useSurface'
+import { formatA2UIValidationErrors, validateA2UIMessages } from '../protocol/validation'
 import A2Renderer from './A2Renderer.vue'
 
 const props = defineProps<{
@@ -16,11 +17,21 @@ const props = defineProps<{
   surfaceId?: string
 }>()
 
+const emit = defineEmits<{
+  action: [event: { name: string; surfaceId: string; sourceComponentId: string; context: Record<string, any> }]
+  error: [error: Error]
+}>()
+
 const dataModel = useDataModel()
 const surface = useSurface()
 
 provide('a2ui-data-model', dataModel)
-provide('a2ui-surface', surface)
+provide('a2ui-surface', {
+  ...surface,
+  emitAction: (name: string, surfaceId: string, sourceComponentId: string, context: Record<string, any>) => {
+    emit('action', { name, surfaceId, sourceComponentId, context })
+  },
+})
 
 // Track which surfaceIds belong to THIS renderer instance
 const ownedSurfaceIds = ref<Set<string>>(new Set())
@@ -44,14 +55,21 @@ function processMessages(messages: any[]) {
   }
 }
 
-onMounted(() => {
-  processMessages(props.messages)
-})
-
+// Use immediate watch instead of onMounted so messages are processed
+// BEFORE the first render — prevents a blank flash on mount
 watch(() => props.messages, (newMsgs) => {
+  // Clean up previously owned surfaces before processing new messages
+  for (const sid of ownedSurfaceIds.value) {
+    surface.deleteSurface(sid)
+  }
   ownedSurfaceIds.value.clear()
+  const errors = validateA2UIMessages(newMsgs, { mode: 'batch' })
+  if (errors.length > 0) {
+    emit('error', new Error(formatA2UIValidationErrors(errors)))
+    return
+  }
   processMessages(newMsgs)
-}, { deep: true })
+}, { deep: true, immediate: true })
 
 const renderSurfaceIds = computed(() => {
   if (props.surfaceId) return [props.surfaceId]

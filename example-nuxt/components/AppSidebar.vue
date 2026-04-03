@@ -55,7 +55,7 @@
 const route = useRoute()
 
 const navItems = [
-  { path: '/', label: 'Create', icon: 'add_circle_outline' },
+  { path: '/', label: 'Home', icon: 'home' },
   { path: '/gallery', label: 'Gallery', icon: 'grid_view' },
   { path: '/designer', label: 'Designer', icon: 'design_services' },
 ]

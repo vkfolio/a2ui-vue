@@ -1,16 +1,16 @@
 {
-  "name": "@vkdevfolio/a2ui-vue",
+  "name": "a2ui-vue",
   "version": "0.1.1",
-  "description": "Vue 3 renderer for Google A2UI protocol — render agent-generated UI components with Tailwind CSS",
+  "description": "Vue 3 renderer for Google A2UI protocol with validation and human-in-the-loop helpers",
   "type": "module",
   "main": "./dist/a2ui-vue.umd.cjs",
   "module": "./dist/a2ui-vue.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/a2ui-vue.js",
-      "require": "./dist/a2ui-vue.umd.cjs",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/a2ui-vue.umd.cjs"
     }
   },
   "files": [
@@ -40,10 +40,11 @@
     "vue3",
     "agent-ui",
     "generative-ui",
+    "human-in-the-loop",
     "ag-ui",
     "tailwindcss",
     "ai-agent",
-    "google-a2ui"
+    "langgraph"
   ],
   "license": "MIT",
   "repository": {

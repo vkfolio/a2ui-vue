@@ -101,6 +101,12 @@ export type ComponentName =
   | 'Icon'
   | 'Video'
   | 'AudioPlayer'
+  | 'Badge'
+  | 'Progress'
+  | 'Rating'
+  | 'Avatar'
+  | 'Alert'
+  | 'Stat'
   | 'Row'
   | 'Column'
   | 'List'
@@ -578,6 +584,62 @@ export interface DateTimeInputComponent extends ComponentCommon {
   checks?: CheckRule[]
 }
 
+/** A pill badge for lightweight status display. */
+export interface BadgeComponent extends ComponentCommon {
+  component: 'Badge'
+  label?: DynamicString
+  text?: DynamicString
+  variant?: 'neutral' | 'success' | 'warning' | 'error' | 'info' | 'primary'
+}
+
+/** A progress indicator. */
+export interface ProgressComponent extends ComponentCommon {
+  component: 'Progress'
+  value?: DynamicNumber
+  label?: DynamicString
+  variant?: 'linear' | 'circular'
+}
+
+/** A rating display or interactive selector. */
+export interface RatingComponent extends ComponentCommon {
+  component: 'Rating'
+  value?: DynamicNumber
+  label?: DynamicString
+  maxStars?: number
+  interactive?: boolean
+  action?: Action
+}
+
+/** An avatar image or initials chip. */
+export interface AvatarComponent extends ComponentCommon {
+  component: 'Avatar'
+  src?: DynamicString
+  name?: DynamicString
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+  status?: 'online' | 'offline' | 'away' | 'busy'
+}
+
+/** An inline alert message. */
+export interface AlertComponent extends ComponentCommon {
+  component: 'Alert'
+  title?: DynamicString
+  message?: DynamicString
+  text?: DynamicString
+  severity?: 'info' | 'success' | 'warning' | 'error'
+  dismissible?: boolean
+}
+
+/** A compact stat/KPI display. */
+export interface StatComponent extends ComponentCommon {
+  component: 'Stat'
+  value?: DynamicString | DynamicNumber
+  text?: DynamicString | DynamicNumber
+  label?: DynamicString
+  trend?: DynamicString
+  trendDirection?: 'up' | 'down' | 'neutral'
+  icon?: DynamicString
+}
+
 // =============================================================================
 // A2Component — Union of All Components
 // =============================================================================
@@ -592,6 +654,12 @@ export type A2Component =
   | IconComponent
   | VideoComponent
   | AudioPlayerComponent
+  | BadgeComponent
+  | ProgressComponent
+  | RatingComponent
+  | AvatarComponent
+  | AlertComponent
+  | StatComponent
   | RowComponent
   | ColumnComponent
   | ListComponent

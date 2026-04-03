@@ -26,6 +26,7 @@ const isDark = useState('dark')
   z-index: 0;
   transition: opacity 0.5s ease;
 }
+
 .blob-orange {
   width: 446px;
   height: 446px;
@@ -34,6 +35,7 @@ const isDark = useState('dark')
   background: rgba(255, 172, 77, 0.2);
   filter: blur(103px);
 }
+
 .blob-lavender-1 {
   width: 609px;
   height: 609px;
@@ -42,6 +44,7 @@ const isDark = useState('dark')
   background: rgb(201, 201, 218);
   filter: blur(103px);
 }
+
 .blob-lavender-2 {
   width: 609px;
   height: 609px;
@@ -50,6 +53,7 @@ const isDark = useState('dark')
   background: rgb(201, 201, 218);
   filter: blur(103px);
 }
+
 .blob-light {
   width: 609px;
   height: 609px;
@@ -58,6 +62,7 @@ const isDark = useState('dark')
   background: rgb(243, 243, 252);
   filter: blur(103px);
 }
+
 .blob-yellow {
   width: 446px;
   height: 446px;

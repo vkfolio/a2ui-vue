@@ -1,0 +1,17 @@
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.nuxt/
+**/.nuxt/
+.output/
+**/.output/
+.git/
+.gitignore
+*.pyc
+__pycache__/
+**/__pycache__/
+.venv/
+**/.venv/
+.env
+example-python/.env
